@@ -4,34 +4,49 @@ import { useNavigate } from 'react-router-dom';
 import { FiLock, FiMail } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { parseApiError } from '../services/api';
 import { UserRole } from '../types';
 
 export default function Auth() {
   const [role, setRole] = useState<UserRole>('client');
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setErrorMessage('');
+    setLoading(true);
+
     const data = new FormData(event.currentTarget);
     const email = String(data.get('email') ?? '');
     const password = String(data.get('password') ?? '');
     const fullName = String(data.get('name') ?? name).trim();
 
     if (!email.includes('@') || password.length < 6) {
-      return toast('Informe um e-mail válido e senha com 6+ caracteres.');
+      setLoading(false);
+      return setErrorMessage('Informe um e-mail válido e senha com 6+ caracteres.');
     }
 
     if (isRegister && fullName.length < 3) {
-      return toast('Informe seu nome completo para cadastro.');
+      setLoading(false);
+      return setErrorMessage('Informe seu nome completo para cadastro.');
     }
 
-    await login(email, password, role, isRegister, fullName);
-    toast(isRegister ? 'Cadastro realizado!' : 'Login realizado!');
-    navigate(role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente');
+    try {
+      await login(email, password, role, isRegister, fullName);
+      toast(isRegister ? 'Cadastro realizado!' : 'Login realizado!');
+      navigate(role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente');
+    } catch (error) {
+      const parsedError = parseApiError(error);
+      setErrorMessage(parsedError.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -44,11 +59,17 @@ export default function Auth() {
       <form onSubmit={handleSubmit} className="card mx-auto w-full max-w-md p-6 shadow-premium">
         <h2 className="text-2xl font-bold">{isRegister ? 'Criar conta' : 'Login'}</h2>
 
+        {errorMessage && (
+          <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {errorMessage}
+          </div>
+        )}
+
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <button type="button" onClick={() => setRole('client')} className={role === 'client' ? 'btn-primary' : 'btn-secondary'}>
+          <button type="button" onClick={() => { setRole('client'); setErrorMessage(''); }} className={role === 'client' ? 'btn-primary' : 'btn-secondary'}>
             Cliente
           </button>
-          <button type="button" onClick={() => setRole('professional')} className={role === 'professional' ? 'btn-primary' : 'btn-secondary'}>
+          <button type="button" onClick={() => { setRole('professional'); setErrorMessage(''); }} className={role === 'professional' ? 'btn-primary' : 'btn-secondary'}>
             Profissional
           </button>
         </div>
@@ -59,7 +80,10 @@ export default function Auth() {
             className="input mt-4"
             placeholder="Nome completo"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setErrorMessage('');
+            }}
             required
           />
         )}
@@ -67,17 +91,37 @@ export default function Auth() {
         <label className="mt-5 block text-sm font-semibold">E-mail</label>
         <div className="relative mt-2">
           <FiMail className="absolute left-4 top-4 text-slate-400" />
-          <input name="email" className="input pl-11" placeholder="voce@email.com" />
+          <input
+            name="email"
+            className="input pl-11"
+            placeholder="voce@email.com"
+            onChange={() => setErrorMessage('')}
+          />
         </div>
 
         <label className="mt-4 block text-sm font-semibold">Senha</label>
         <div className="relative mt-2">
           <FiLock className="absolute left-4 top-4 text-slate-400" />
-          <input name="password" type="password" className="input pl-11" placeholder="••••••" />
+          <input
+            name="password"
+            type="password"
+            className="input pl-11"
+            placeholder="••••••"
+            onChange={() => setErrorMessage('')}
+          />
         </div>
 
-        <button className="btn-primary mt-6 w-full">Continuar</button>
-        <button type="button" onClick={() => setIsRegister(!isRegister)} className="mt-4 w-full text-sm font-bold text-brand-600">
+        <button disabled={loading} className="btn-primary mt-6 w-full">
+          {loading ? 'Carregando...' : 'Continuar'}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsRegister(!isRegister);
+            setErrorMessage('');
+          }}
+          className="mt-4 w-full text-sm font-bold text-brand-600"
+        >
           {isRegister ? 'Já tenho conta' : 'Criar cadastro separado'}
         </button>
       </form>

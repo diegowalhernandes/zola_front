@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
+import { parseApiError } from "../services/api";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -10,22 +12,27 @@ export default function Register() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       setLoading(true);
 
       const data = await registerUser(form);
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      alert("Cadastro realizado com sucesso!");
-      window.location.href = "/";
-    } catch (error: any) {
-      alert(error.response?.data?.detail || "Erro ao cadastrar usuário");
+      localStorage.setItem("auth:token", data.access_token);
+      localStorage.setItem("auth:user", JSON.stringify(data.user));
+      setSuccessMessage("Cadastro realizado com sucesso!");
+      navigate("/");
+    } catch (error) {
+      const parsedError = parseApiError(error);
+      setErrorMessage(parsedError.message);
     } finally {
       setLoading(false);
     }
@@ -39,11 +46,26 @@ export default function Register() {
       >
         <h1 className="text-2xl font-bold text-slate-900">Criar conta</h1>
 
+        {errorMessage && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {errorMessage}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {successMessage}
+          </div>
+        )}
+
         <input
           className="w-full border rounded-xl px-4 py-3"
           placeholder="Nome"
           value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, name: e.target.value });
+            setErrorMessage("");
+          }}
           required
         />
 
@@ -52,7 +74,10 @@ export default function Register() {
           placeholder="E-mail"
           type="email"
           value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, email: e.target.value });
+            setErrorMessage("");
+          }}
           required
         />
 
@@ -61,19 +86,23 @@ export default function Register() {
           placeholder="Senha"
           type="password"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, password: e.target.value });
+            setErrorMessage("");
+          }}
           required
         />
 
         <select
           className="w-full border rounded-xl px-4 py-3"
           value={form.role}
-          onChange={(e) =>
+          onChange={(e) => {
             setForm({
               ...form,
               role: e.target.value as "client" | "professional",
-            })
-          }
+            });
+            setErrorMessage("");
+          }}
         >
           <option value="client">Sou cliente</option>
           <option value="professional">Sou profissional</option>
