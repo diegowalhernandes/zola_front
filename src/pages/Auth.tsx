@@ -6,11 +6,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { parseApiError } from '../services/api';
 import { UserRole } from '../types';
+import {
+  emptyProfessionalOnboarding,
+  ProfessionalOnboardingFields,
+} from '../components/professionals/ProfessionalOnboardingFields';
 
 export default function Auth() {
   const [role, setRole] = useState<UserRole>('client');
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
+  const [professionalData, setProfessionalData] = useState(emptyProfessionalOnboarding());
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
@@ -37,8 +42,28 @@ export default function Auth() {
       return setErrorMessage('Informe seu nome completo para cadastro.');
     }
 
+    if (isRegister && role === 'professional') {
+      if (!professionalData.city || !professionalData.state || !professionalData.title || !professionalData.description) {
+        setLoading(false);
+        return setErrorMessage('Preencha os dados do perfil profissional e as especificações da vaga.');
+      }
+    }
+
     try {
-      await login(email, password, role, isRegister, fullName);
+      const extra =
+        isRegister && role === 'professional'
+          ? {
+              professional_type: professionalData.professional_type,
+              city: professionalData.city,
+              state: professionalData.state,
+              title: professionalData.title,
+              description: professionalData.description,
+              price_from: professionalData.price_from ? Number(professionalData.price_from) : undefined,
+              job_specs: professionalData.job_specs,
+            }
+          : undefined;
+
+      await login(email, password, role, isRegister, fullName, extra);
       toast(isRegister ? 'Cadastro realizado!' : 'Login realizado!');
       navigate(role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente');
     } catch (error) {
@@ -53,7 +78,9 @@ export default function Auth() {
     <section className="container-page grid min-h-[calc(100vh-80px)] items-center gap-10 py-10 lg:grid-cols-2">
       <div>
         <h1 className="text-5xl font-extrabold tracking-tight">Entre na sua conta ou comece agora.</h1>
-        <p className="mt-5 text-lg text-slate-500">Autenticação real com FastAPI e JWT.</p>
+        <p className="mt-5 text-lg text-slate-500">
+          Cadastre-se como cliente ou como profissional (diarista, babá ou montador de móveis).
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="card mx-auto w-full max-w-md p-6 shadow-premium">
@@ -86,6 +113,12 @@ export default function Auth() {
             }}
             required
           />
+        )}
+
+        {isRegister && role === 'professional' && (
+          <div className="mt-4">
+            <ProfessionalOnboardingFields value={professionalData} onChange={setProfessionalData} />
+          </div>
         )}
 
         <label className="mt-5 block text-sm font-semibold">E-mail</label>

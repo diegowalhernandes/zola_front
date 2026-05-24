@@ -9,6 +9,7 @@ export default function Search() {
   const { professionals, loading } = useProfessionals();
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState('');
+  const [professionalType, setProfessionalType] = useState('');
   const [location, setLocation] = useState('');
   const [rating, setRating] = useState('0');
   const [price, setPrice] = useState('999');
@@ -22,21 +23,28 @@ export default function Search() {
       professionals.filter(
         (item) =>
           (!category || item.category === category) &&
+          (!professionalType || item.professionalType === professionalType) &&
           (!location || item.location.toLowerCase().includes(location.toLowerCase())) &&
           item.rating >= Number(rating) &&
           item.price <= Number(price)
       ),
-    [professionals, category, location, rating, price]
+    [professionals, category, professionalType, location, rating, price]
   );
 
   return (
     <section className="container-page py-10">
       <h1 className="text-4xl font-extrabold">Buscar profissionais</h1>
-      <p className="mt-2 text-slate-500">Filtre por categoria, localização, avaliação e preço.</p>
+      <p className="mt-2 text-slate-500">Encontre diaristas, babás e montadores por localização, avaliação e preço.</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
         <aside className="card h-max p-5">
           <div className="space-y-4">
+            <select className="input" value={professionalType} onChange={(e) => setProfessionalType(e.target.value)}>
+              <option value="">Todos os tipos</option>
+              <option value="diarista">Diarista</option>
+              <option value="baba">Babá</option>
+              <option value="montador">Montador de móveis</option>
+            </select>
             <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">Todas as categorias</option>
               {categories.map((cat) => (

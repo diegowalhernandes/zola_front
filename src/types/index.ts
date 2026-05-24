@@ -26,10 +26,18 @@ export interface Review {
   date: string;
 }
 
+export type ProfessionalType = 'diarista' | 'baba' | 'montador';
+
+export type JobSpecs = Record<string, string | number | boolean | string[]>;
+
+export type WeeklyAvailability = Record<string, string[]>;
+
 export interface Professional {
   id: string;
   name: string;
+  title: string;
   category: string;
+  professionalType?: ProfessionalType;
   location: string;
   price: number;
   rating: number;
@@ -41,6 +49,20 @@ export interface Professional {
   services: string[];
   gallery: string[];
   availableToday: boolean;
+  jobSpecs?: JobSpecs;
+  availability?: WeeklyAvailability;
+}
+
+export interface DayAvailability {
+  date: string;
+  slots: string[];
+}
+
+export interface AppointmentPayload {
+  professional_id: number;
+  appointment_date: string;
+  time_slot: string;
+  notes?: string;
 }
 
 export interface ServiceOrder {

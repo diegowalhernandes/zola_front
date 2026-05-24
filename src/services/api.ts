@@ -1,7 +1,9 @@
 import axios, { AxiosError } from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_BASE_URL,
   timeout: 7000,
 });
 
@@ -18,11 +20,16 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    const message = error.response?.data?.detail
-      || error.response?.statusText
-      || (error.code === 'ECONNABORTED'
+    const status = error.response?.status ?? 0;
+    const detail = error.response?.data?.detail;
+    const message =
+      detail ||
+      (status === 404
+        ? `Rota não encontrada (${API_BASE_URL}). Confira se o backend FastAPI está rodando.`
+        : error.response?.statusText) ||
+      (error.code === 'ECONNABORTED'
         ? 'A requisição demorou demais. Tente novamente.'
-        : 'Não foi possível conectar à API. Verifique sua internet.');
+        : 'Não foi possível conectar à API. Verifique se o backend está em execução.');
 
     return Promise.reject({
       ...error,

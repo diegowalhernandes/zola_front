@@ -1,10 +1,18 @@
 import { api } from "./api";
+import { JobSpecs, ProfessionalType } from "../types";
 
 export type RegisterData = {
   name: string;
   email: string;
   password: string;
   role: "client" | "professional";
+  professional_type?: ProfessionalType;
+  city?: string;
+  state?: string;
+  title?: string;
+  description?: string;
+  price_from?: number;
+  job_specs?: JobSpecs;
 };
 
 export async function registerUser(data: RegisterData) {

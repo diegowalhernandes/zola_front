@@ -1,11 +1,18 @@
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { loginUser, registerUser } from '../services/authService';
+import { loginUser, registerUser, RegisterData } from '../services/authService';
 import { User, UserRole } from '../types';
 
 type AuthContextValue = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, role: UserRole, isRegister: boolean, name?: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    role: UserRole,
+    isRegister: boolean,
+    name?: string,
+    professionalData?: Omit<RegisterData, 'name' | 'email' | 'password' | 'role'>
+  ) => Promise<void>;
   logout: () => void;
 };
 
@@ -17,9 +24,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  async function login(email: string, password: string, role: UserRole, isRegister = false, name?: string) {
+  async function login(
+    email: string,
+    password: string,
+    role: UserRole,
+    isRegister = false,
+    name?: string,
+    professionalData?: Omit<RegisterData, 'name' | 'email' | 'password' | 'role'>
+  ) {
     const response = isRegister
-      ? await registerUser({ name: name ?? '', email, password, role })
+      ? await registerUser({ name: name ?? '', email, password, role, ...professionalData })
       : await loginUser(email, password);
 
     localStorage.setItem('auth:token', response.access_token);
