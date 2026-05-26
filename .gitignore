@@ -1,4 +1,8 @@
 node_modules
 dist
-.env
 .DS_Store
+
+# Variáveis locais — configure no Vercel (front) e não commite
+.env
+.env.*
+!.env.example
