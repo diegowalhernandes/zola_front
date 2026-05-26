@@ -27,7 +27,7 @@ export default function ClientDashboard() {
 
   return (
     <section className="container-page py-10">
-      <h1 className="text-3xl font-extrabold">Dashboard do Cliente</h1>
+      <h1 className="heading-page">Dashboard do Cliente</h1>
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
         {[
@@ -35,7 +35,7 @@ export default function ClientDashboard() {
           { label: 'Pedidos em andamento', value: inProgressRequests.toString(), icon: FiHeart },
           { label: 'Aguardando atendimento', value: pendingRequests.toString(), icon: FiStar },
         ].map((card) => (
-          <div className="card p-6" key={card.label}>
+          <div className="stat-card" key={card.label}>
             <card.icon className="text-3xl text-brand-600" />
             <strong className="mt-4 block text-3xl">{card.value}</strong>
             <span className="text-sm text-slate-500">{card.label}</span>
@@ -51,7 +51,7 @@ export default function ClientDashboard() {
             {loading && <p className="text-slate-500">Carregando pedidos...</p>}
             {!loading && requests.length === 0 && <p className="text-slate-500">Nenhum pedido encontrado.</p>}
             {!loading && requests.map((request) => (
-              <div key={request.id} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+              <div key={request.id} className="list-row">
                 <strong>{request.title}</strong>
                 <p className="text-sm text-slate-500">
                   Profissional #{request.professional_id ?? 'aguardando'} • R$ {request.budget ?? 0}

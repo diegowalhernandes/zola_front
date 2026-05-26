@@ -8,7 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 const links = [
   { to: '/', label: 'Início' },
   { to: '/buscar', label: 'Buscar' },
-  { to: '/chat', label: 'Chat' }
+  { to: '/chat', label: 'Chat' },
 ];
 
 export function Navbar() {
@@ -17,19 +17,96 @@ export function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
-      <nav className="container-page flex h-20 items-center justify-between">
-        <Link to="/"><Logo /></Link>
-        <div className="hidden items-center gap-8 md:flex">
-          {links.map((link) => <NavLink key={link.to} to={link.to} className={({ isActive }) => `text-sm font-semibold transition ${isActive ? 'text-brand-600' : 'text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white'}`}>{link.label}</NavLink>)}
+    <header className="glass-header sticky top-0 z-40">
+      <nav className="container-page flex h-[4.5rem] items-center justify-between">
+        <Link to="/" className="transition-opacity hover:opacity-90">
+          <Logo compact />
+        </Link>
+
+        <div className="hidden items-center gap-1 md:flex">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `rounded-lg px-4 py-2 ${isActive ? 'nav-link-active bg-brand-500/10' : 'nav-link'}`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
         </div>
-        <div className="hidden items-center gap-3 md:flex">
-          <button onClick={toggleDarkMode} className="btn-secondary px-4">{isDark ? <FiSun /> : <FiMoon />}</button>
-          {user ? <button onClick={logout} className="btn-secondary">Sair</button> : <Link to="/login" className="btn-primary">Entrar</Link>}
+
+        <div className="hidden items-center gap-2 md:flex">
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            className="btn-ghost px-3"
+            aria-label={isDark ? 'Modo claro' : 'Modo escuro'}
+          >
+            {isDark ? <FiSun className="text-lg" /> : <FiMoon className="text-lg" />}
+          </button>
+          {user ? (
+            <>
+              <Link
+                to={user.role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente'}
+                className="btn-secondary hidden sm:inline-flex"
+              >
+                Meu painel
+              </Link>
+              <button type="button" onClick={logout} className="btn-secondary">
+                Sair
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-primary">
+              Entrar
+            </Link>
+          )}
         </div>
-        <button className="btn-secondary px-4 md:hidden" onClick={() => setOpen(!open)}>{open ? <FiX /> : <FiMenu />}</button>
+
+        <button
+          type="button"
+          className="btn-ghost px-3 md:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label="Menu"
+        >
+          {open ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
+        </button>
       </nav>
-      {open && <div className="container-page pb-4 md:hidden">{links.map((link) => <Link key={link.to} className="block rounded-xl px-3 py-3 font-semibold" to={link.to} onClick={() => setOpen(false)}>{link.label}</Link>)}<Link className="btn-primary mt-2 w-full" to="/login">Entrar</Link></div>}
+
+      {open && (
+        <div className="container-page animate-slide-up border-t border-graphite-200/60 pb-4 pt-2 dark:border-graphite-800/60 md:hidden">
+          {links.map((link) => (
+            <Link
+              key={link.to}
+              className="block rounded-xl px-3 py-3 font-semibold text-graphite-700 dark:text-graphite-200"
+              to={link.to}
+              onClick={() => setOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          {user ? (
+            <>
+              <Link
+                className="btn-secondary mt-3 w-full"
+                to={user.role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente'}
+                onClick={() => setOpen(false)}
+              >
+                Meu painel
+              </Link>
+              <button type="button" className="btn-primary mt-2 w-full" onClick={() => { logout(); setOpen(false); }}>
+                Sair
+              </button>
+            </>
+          ) : (
+            <Link className="btn-primary mt-3 w-full" to="/login" onClick={() => setOpen(false)}>
+              Entrar
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   );
 }

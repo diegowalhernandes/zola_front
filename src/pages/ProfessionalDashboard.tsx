@@ -118,8 +118,8 @@ export default function ProfessionalDashboard() {
 
   return (
     <section>
-      <h1 className="text-3xl font-extrabold">Dashboard do Profissional</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="heading-page">Dashboard do Profissional</h1>
+      <p className="mt-2 text-muted">
         Gerencie seu perfil de {PROFESSIONAL_TYPE_LABELS[professionalType]}, especificações e agenda semanal.
       </p>
 

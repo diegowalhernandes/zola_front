@@ -33,8 +33,8 @@ export default function Search() {
 
   return (
     <section className="container-page py-10">
-      <h1 className="text-4xl font-extrabold">Buscar profissionais</h1>
-      <p className="mt-2 text-slate-500">Encontre diaristas, babás e montadores por localização, avaliação e preço.</p>
+      <h1 className="heading-page">Buscar profissionais</h1>
+      <p className="mt-2 text-muted">Filtre por tipo, localização, avaliação e preço.</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
         <aside className="card h-max p-5">

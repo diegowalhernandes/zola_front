@@ -1,11 +1,12 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiLock, FiMail } from 'react-icons/fi';
+import { FiLock, FiMail, FiShield } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { parseApiError } from '../services/api';
 import { UserRole } from '../types';
+import { BRAND } from '../design/brand';
 import {
   emptyProfessionalOnboarding,
   ProfessionalOnboardingFields,
@@ -67,36 +68,61 @@ export default function Auth() {
       toast(isRegister ? 'Cadastro realizado!' : 'Login realizado!');
       navigate(role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente');
     } catch (error) {
-      const parsedError = parseApiError(error);
-      setErrorMessage(parsedError.message);
+      setErrorMessage(parseApiError(error).message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section className="container-page grid min-h-[calc(100vh-80px)] items-center gap-10 py-10 lg:grid-cols-2">
-      <div>
-        <h1 className="text-5xl font-extrabold tracking-tight">Entre na sua conta ou comece agora.</h1>
-        <p className="mt-5 text-lg text-slate-500">
-          Cadastre-se como cliente ou como profissional (diarista, babá ou montador de móveis).
+    <section className="container-page grid min-h-[calc(100vh-4.5rem)] items-center gap-10 py-10 lg:grid-cols-2 lg:py-16">
+      <div className="hidden lg:block">
+        <span className="eyebrow">Acesso seguro</span>
+        <h1 className="heading-display mt-6">
+          {isRegister ? 'Comece na' : 'Bem-vindo à'} {BRAND.name}
+        </h1>
+        <p className="mt-5 max-w-md text-lg text-muted">
+          Cadastre-se como cliente ou profissional. Diarista, babá ou montador — com especificações claras desde o primeiro passo.
         </p>
+        <ul className="mt-8 space-y-4">
+          {['Autenticação protegida', 'Perfis verificados', 'Agenda transparente'].map((item) => (
+            <li key={item} className="flex items-center gap-3 text-sm font-medium text-graphite-600 dark:text-graphite-300">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-400">
+                <FiShield />
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <form onSubmit={handleSubmit} className="card mx-auto w-full max-w-md p-6 shadow-premium">
-        <h2 className="text-2xl font-bold">{isRegister ? 'Criar conta' : 'Login'}</h2>
+      <form onSubmit={handleSubmit} className="card-elevated mx-auto w-full max-w-md p-6 sm:p-8">
+        <h2 className="text-2xl font-bold text-graphite-900 dark:text-white">
+          {isRegister ? 'Criar conta' : 'Entrar'}
+        </h2>
+        <p className="mt-1 text-sm text-muted lg:hidden">{BRAND.tagline}</p>
 
-        {errorMessage && (
-          <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {errorMessage}
-          </div>
-        )}
+        {errorMessage && <div className="alert-error mt-4">{errorMessage}</div>}
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <button type="button" onClick={() => { setRole('client'); setErrorMessage(''); }} className={role === 'client' ? 'btn-primary' : 'btn-secondary'}>
+          <button
+            type="button"
+            onClick={() => {
+              setRole('client');
+              setErrorMessage('');
+            }}
+            className={role === 'client' ? 'btn-primary' : 'btn-secondary'}
+          >
             Cliente
           </button>
-          <button type="button" onClick={() => { setRole('professional'); setErrorMessage(''); }} className={role === 'professional' ? 'btn-primary' : 'btn-secondary'}>
+          <button
+            type="button"
+            onClick={() => {
+              setRole('professional');
+              setErrorMessage('');
+            }}
+            className={role === 'professional' ? 'btn-primary' : 'btn-secondary'}
+          >
             Profissional
           </button>
         </div>
@@ -121,20 +147,15 @@ export default function Auth() {
           </div>
         )}
 
-        <label className="mt-5 block text-sm font-semibold">E-mail</label>
+        <label className="mt-5 block text-sm font-semibold text-graphite-700 dark:text-graphite-200">E-mail</label>
         <div className="relative mt-2">
-          <FiMail className="absolute left-4 top-4 text-slate-400" />
-          <input
-            name="email"
-            className="input pl-11"
-            placeholder="voce@email.com"
-            onChange={() => setErrorMessage('')}
-          />
+          <FiMail className="absolute left-4 top-3.5 text-graphite-400" />
+          <input name="email" className="input pl-11" placeholder="voce@email.com" onChange={() => setErrorMessage('')} />
         </div>
 
-        <label className="mt-4 block text-sm font-semibold">Senha</label>
+        <label className="mt-4 block text-sm font-semibold text-graphite-700 dark:text-graphite-200">Senha</label>
         <div className="relative mt-2">
-          <FiLock className="absolute left-4 top-4 text-slate-400" />
+          <FiLock className="absolute left-4 top-3.5 text-graphite-400" />
           <input
             name="password"
             type="password"
@@ -153,9 +174,9 @@ export default function Auth() {
             setIsRegister(!isRegister);
             setErrorMessage('');
           }}
-          className="mt-4 w-full text-sm font-bold text-brand-600"
+          className="mt-4 w-full text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
         >
-          {isRegister ? 'Já tenho conta' : 'Criar cadastro separado'}
+          {isRegister ? 'Já tenho conta' : 'Criar cadastro'}
         </button>
       </form>
     </section>

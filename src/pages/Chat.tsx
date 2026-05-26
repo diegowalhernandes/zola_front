@@ -79,13 +79,13 @@ export default function Chat() {
 
   return (
     <section className="container-page py-10">
-      <div className="mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-premium dark:border-slate-800 dark:bg-slate-900">
+      <div className="card-elevated mx-auto max-w-4xl overflow-hidden">
         <header className="flex flex-col gap-4 border-b border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <img className="h-12 w-12 rounded-2xl object-cover" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop" />
             <div>
               <strong>Chat de atendimento</strong>
-              <p className="text-sm text-emerald-500">Conectado ao backend FastAPI</p>
+              <p className="text-sm text-brand-500 dark:text-brand-400">Conectado</p>
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export default function Chat() {
           </div>
         </header>
 
-        <main className="h-[520px] space-y-4 overflow-y-auto bg-slate-50 p-5 dark:bg-slate-950">
+        <main className="h-[520px] space-y-4 overflow-y-auto bg-graphite-50 p-5 dark:bg-navy-950">
           {loading && <p className="text-slate-500">Carregando conversas...</p>}
           {!loading && requests.length === 0 && <p className="text-slate-500">Nenhum pedido encontrado para chat.</p>}
           {!loading && requests.length > 0 && messages.length === 0 && <p className="text-slate-500">Nenhuma mensagem no pedido selecionado.</p>}

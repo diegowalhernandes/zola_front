@@ -1,10 +1,21 @@
-import { FaHandshake } from 'react-icons/fa';
+import { BRAND } from '../../design/brand';
 
-export function Logo() {
+export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-2 font-extrabold tracking-tight text-slate-950 dark:text-white">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-cyan-500/20"><FaHandshake /></span>
-      <span className="text-xl">ServiçoJá</span>
+    <div className="flex items-center gap-3">
+      <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-gradient-brand shadow-glow-sm">
+        <span className="text-lg font-extrabold text-white">Z</span>
+      </span>
+      {!compact && (
+        <div className="leading-tight">
+          <span className="block text-lg font-extrabold tracking-tight text-graphite-900 dark:text-white">
+            {BRAND.name}
+          </span>
+          <span className="hidden text-[11px] font-medium text-graphite-500 sm:block dark:text-graphite-400">
+            {BRAND.tagline}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

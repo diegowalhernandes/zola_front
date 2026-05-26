@@ -63,27 +63,18 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10 dark:bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center bg-graphite-50 px-4 py-10 dark:bg-navy-950">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-8 space-y-5"
+        className="card-elevated w-full max-w-lg space-y-5 p-8"
       >
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Criar conta</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="heading-page text-2xl">Criar conta</h1>
+        <p className="text-sm text-muted">
           Profissionais: escolha diarista, babá ou montador de móveis e informe as especificações.
         </p>
 
-        {errorMessage && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {errorMessage}
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            {successMessage}
-          </div>
-        )}
+        {errorMessage && <div className="alert-error">{errorMessage}</div>}
+        {successMessage && <div className="alert-success">{successMessage}</div>}
 
         <input
           className="input"
@@ -141,7 +132,7 @@ export default function Register() {
 
         <button
           disabled={loading}
-          className="w-full bg-emerald-600 text-white rounded-xl py-3 font-semibold hover:bg-emerald-700 disabled:opacity-60"
+          className="w-full bg-gradient-brand text-white rounded-xl py-3 font-semibold shadow-glow transition hover:brightness-110 disabled:opacity-60"
         >
           {loading ? "Cadastrando..." : "Cadastrar"}
         </button>
