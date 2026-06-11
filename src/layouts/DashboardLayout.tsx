@@ -29,11 +29,11 @@ export default function DashboardLayout() {
   const items = getSidebarItems(user?.role);
 
   return (
-    <div className="min-h-screen bg-graphite-50 dark:bg-navy-950">
+    <div className="min-h-screen bg-cream dark:bg-navy-950">
       <Navbar />
 
       <div className="lg:pl-72">
-        <aside className="fixed left-0 top-[4.5rem] z-30 hidden h-[calc(100vh-4.5rem)] w-72 overflow-y-auto border-r border-graphite-200/80 bg-white/90 p-6 backdrop-blur-xl dark:border-graphite-800/80 dark:bg-navy-900/90 lg:block">
+        <aside className="fixed left-0 top-16 z-30 hidden h-[calc(100vh-4rem)] w-72 overflow-y-auto border-r border-brand-100 bg-white/95 p-6 backdrop-blur-xl dark:border-brand-800/60 dark:bg-navy-900/95 sm:top-[4.5rem] sm:h-[calc(100vh-4.5rem)] lg:block">
           <Link to="/" className="block transition-opacity hover:opacity-90">
             <Logo />
           </Link>

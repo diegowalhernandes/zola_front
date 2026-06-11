@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,12 +8,13 @@
   }
 
   body {
-    @apply bg-graphite-50 font-sans text-graphite-900 dark:bg-navy-950 dark:text-graphite-100;
-    background-image: radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 40%);
+    @apply bg-cream font-sans text-ink;
+    background-image: radial-gradient(at 100% 0%, rgba(123, 174, 127, 0.08) 0px, transparent 45%);
   }
 
   .dark body {
-    background-image: radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.06) 0px, transparent 45%);
+    @apply bg-navy-950 text-ink-100;
+    background-image: radial-gradient(at 100% 0%, rgba(43, 76, 126, 0.15) 0px, transparent 45%);
   }
 
   input,
@@ -25,7 +24,7 @@
   }
 
   ::selection {
-    @apply bg-brand-500/25 text-brand-900 dark:text-white;
+    @apply bg-sage-400/30 text-brand-900;
   }
 }
 
@@ -35,16 +34,16 @@
   }
 
   .surface-page {
-    @apply min-h-screen bg-graphite-50 dark:bg-navy-950;
+    @apply min-h-screen bg-cream dark:bg-navy-950;
   }
 
   .card {
-    @apply rounded-2xl border border-graphite-200/80 bg-white shadow-card transition-shadow duration-300
-      dark:border-graphite-800/80 dark:bg-navy-900/60 dark:shadow-card-dark;
+    @apply rounded-3xl border border-brand-100/80 bg-white shadow-card transition-all duration-300
+      dark:border-brand-800/40 dark:bg-navy-900/70;
   }
 
   .card-interactive {
-    @apply card hover:border-brand-500/30 hover:shadow-glow-sm;
+    @apply card hover:-translate-y-1 hover:border-sage-300/60 hover:shadow-card-hover;
   }
 
   .card-elevated {
@@ -52,113 +51,242 @@
   }
 
   .glass-header {
-    @apply border-b border-graphite-200/60 bg-white/80 backdrop-blur-xl
-      dark:border-graphite-800/60 dark:bg-navy-950/75;
+    @apply border-b border-brand-700/20 bg-brand-600 text-white shadow-sm
+      dark:border-brand-800/60 dark:bg-brand-950/95;
+  }
+
+  .glass-header .nav-link {
+    @apply text-white/85 hover:text-white;
+  }
+
+  .glass-header .nav-link-active {
+    @apply bg-white/15 text-white;
+  }
+
+  .glass-header .btn-ghost {
+    @apply text-white/90 hover:bg-white/10 hover:text-white;
+  }
+
+  .glass-header .btn-secondary {
+    @apply border-white/25 bg-white/10 text-white hover:bg-white/20;
   }
 
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10
-      px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-700
-      dark:border-brand-400/20 dark:bg-brand-500/10 dark:text-brand-300;
+    @apply inline-flex items-center gap-2 rounded-full border border-sage-300/50 bg-sage-50
+      px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-brand-700
+      dark:border-sage-600/30 dark:bg-sage-900/20 dark:text-sage-300;
   }
 
   .heading-display {
-    @apply font-display text-4xl font-extrabold tracking-tight text-graphite-900 sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1] dark:text-white;
+    @apply font-display text-4xl font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]
+      dark:text-white;
   }
 
   .heading-page {
-    @apply text-3xl font-extrabold tracking-tight text-graphite-900 dark:text-white;
+    @apply text-3xl font-bold tracking-tight text-ink dark:text-white;
+  }
+
+  .heading-section {
+    @apply text-2xl font-bold tracking-tight text-ink sm:text-3xl dark:text-white;
   }
 
   .text-muted {
-    @apply text-graphite-500 dark:text-graphite-400;
+    @apply text-ink-muted dark:text-ink-400;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-brand px-5 py-3
-      text-sm font-semibold text-white shadow-glow transition-all duration-200
-      hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:brightness-95
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 py-3.5
+      text-sm font-bold text-white shadow-glow-sm transition-all duration-200
+      hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0
+      disabled:pointer-events-none disabled:opacity-60;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-accent-400 px-6 py-3.5
+      text-sm font-bold text-brand-900 shadow-warm transition-all duration-200
+      hover:-translate-y-0.5 hover:bg-accent-300 active:translate-y-0
       disabled:pointer-events-none disabled:opacity-60;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-graphite-200 bg-white
-      px-5 py-3 text-sm font-semibold text-graphite-700 shadow-sm transition-all duration-200
-      hover:border-graphite-300 hover:bg-graphite-50
-      dark:border-graphite-700 dark:bg-navy-900/80 dark:text-graphite-100 dark:hover:border-graphite-600 dark:hover:bg-navy-800;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-brand-200 bg-white
+      px-6 py-3.5 text-sm font-bold text-brand-700 transition-all duration-200
+      hover:border-brand-300 hover:bg-brand-50
+      dark:border-brand-700 dark:bg-navy-900/80 dark:text-brand-100 dark:hover:bg-brand-900/40;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
-      text-graphite-600 transition-colors hover:bg-graphite-100 hover:text-graphite-900
-      dark:text-graphite-300 dark:hover:bg-navy-800 dark:hover:text-white;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold
+      text-ink-muted transition-colors hover:bg-brand-50 hover:text-brand-800
+      dark:text-ink-300 dark:hover:bg-brand-900/30 dark:hover:text-white;
   }
 
   .input {
-    @apply w-full rounded-xl border border-graphite-200 bg-white px-4 py-3 text-sm text-graphite-800
-      shadow-sm transition-all duration-200 placeholder:text-graphite-400
+    @apply w-full rounded-2xl border border-brand-100 bg-white px-4 py-3.5 text-sm text-ink
+      shadow-sm transition-all duration-200 placeholder:text-ink-light
       focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10
-      dark:border-graphite-700 dark:bg-navy-900/80 dark:text-graphite-100 dark:placeholder:text-graphite-500
-      dark:focus:border-brand-400 dark:focus:ring-brand-400/10;
+      dark:border-brand-800 dark:bg-navy-900/80 dark:text-ink-100 dark:placeholder:text-ink-500
+      dark:focus:border-sage-400 dark:focus:ring-sage-400/10;
   }
 
   .badge {
-    @apply inline-flex items-center rounded-lg bg-graphite-100 px-2.5 py-1 text-xs font-semibold text-graphite-600
-      dark:bg-navy-800 dark:text-graphite-300;
+    @apply inline-flex items-center rounded-xl bg-cream-200 px-2.5 py-1 text-xs font-bold text-ink-muted
+      dark:bg-brand-900 dark:text-ink-300;
   }
 
   .badge-brand {
-    @apply inline-flex items-center rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-semibold text-brand-700
-      dark:bg-brand-500/15 dark:text-brand-300;
+    @apply inline-flex items-center rounded-xl bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-700
+      dark:bg-brand-900/50 dark:text-brand-200;
+  }
+
+  .badge-verified {
+    @apply inline-flex items-center gap-1 rounded-xl bg-sage-100 px-2.5 py-1 text-xs font-bold text-sage-700
+      dark:bg-sage-900/40 dark:text-sage-300;
   }
 
   .stat-card {
-    @apply card p-6;
+    @apply card p-6 text-center;
   }
 
   .nav-link {
-    @apply text-sm font-semibold text-graphite-500 transition-colors hover:text-graphite-900
-      dark:text-graphite-400 dark:hover:text-white;
+    @apply rounded-xl px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:text-brand-700
+      dark:text-ink-400 dark:hover:text-white;
   }
 
   .nav-link-active {
-    @apply text-brand-600 dark:text-brand-400;
+    @apply bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-sage-300;
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-graphite-500 transition-all
-      hover:bg-graphite-100 hover:text-graphite-900
-      dark:text-graphite-400 dark:hover:bg-navy-800 dark:hover:text-white;
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-ink-muted transition-all
+      hover:bg-cream-200 hover:text-brand-800
+      dark:text-ink-400 dark:hover:bg-brand-900/40 dark:hover:text-white;
   }
 
   .sidebar-link-active {
-    @apply bg-gradient-brand-soft border border-brand-500/20 text-brand-700
-      dark:border-brand-400/20 dark:text-brand-300;
+    @apply border border-brand-200 bg-gradient-brand-soft text-brand-700
+      dark:border-brand-700/50 dark:text-sage-300;
   }
 
   .alert-error {
-    @apply rounded-xl border border-rose-200/80 bg-rose-50 px-4 py-3 text-sm text-rose-700
+    @apply rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700
       dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300;
   }
 
   .alert-success {
-    @apply rounded-xl border border-emerald-200/80 bg-emerald-50 px-4 py-3 text-sm text-emerald-700
-      dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300;
+    @apply rounded-2xl border border-sage-200 bg-sage-50 px-4 py-3 text-sm text-sage-700
+      dark:border-sage-500/30 dark:bg-sage-500/10 dark:text-sage-300;
+  }
+
+  .panel-brand {
+    @apply rounded-4xl bg-gradient-brand p-8 text-white shadow-glow sm:p-10;
   }
 
   .panel-dark {
-    @apply rounded-3xl border border-white/10 bg-navy-900/95 p-8 text-white shadow-premium backdrop-blur-sm;
+    @apply rounded-4xl border border-brand-700/30 bg-brand-800 p-8 text-white shadow-premium sm:p-10;
   }
 
-  .gradient-panel {
-    @apply rounded-3xl bg-gradient-brand p-8 text-white shadow-glow;
+  .panel-cream {
+    @apply rounded-4xl border border-cream-300 bg-white/80 p-8 shadow-card backdrop-blur-sm sm:p-10;
   }
 
   .list-row {
-    @apply rounded-xl bg-graphite-50 p-4 transition-colors dark:bg-navy-800/60;
+    @apply rounded-2xl bg-cream-100 p-4 transition-colors dark:bg-brand-900/30;
   }
 
   .section-divider {
-    @apply border-t border-graphite-200 dark:border-graphite-800;
+    @apply border-t border-brand-100 dark:border-brand-800/60;
+  }
+
+  .hero-image {
+    @apply rounded-4xl object-cover shadow-premium;
+  }
+
+  .category-card {
+    @apply card-interactive overflow-hidden;
+  }
+
+  .step-card {
+    @apply card p-6 text-center;
+  }
+
+  .testimonial-card {
+    @apply card p-6;
+  }
+
+  .cta-banner {
+    @apply panel-brand relative overflow-hidden text-center;
+  }
+
+  /* ——— Home vibrante ——— */
+  .home-hero {
+    @apply relative overflow-hidden bg-cream pb-16 pt-8 sm:pb-20 sm:pt-12;
+  }
+
+  .home-hero-bg {
+    @apply pointer-events-none absolute inset-0 bg-gradient-mesh opacity-90;
+  }
+
+  .home-hero-blob {
+    @apply pointer-events-none absolute rounded-full blur-3xl;
+  }
+
+  .home-hero-panel {
+    @apply relative overflow-hidden rounded-4xl border border-white/40 bg-white/90 p-8 shadow-premium backdrop-blur-md
+      dark:border-brand-700/30 dark:bg-brand-950/80 lg:p-12;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-hero-vivid bg-clip-text text-transparent;
+  }
+
+  .stat-card-vivid {
+    @apply rounded-3xl border border-white/60 bg-white/90 p-5 text-center shadow-card backdrop-blur-sm
+      dark:border-brand-700/40 dark:bg-brand-900/60;
+  }
+
+  .step-card-vivid {
+    @apply relative overflow-hidden rounded-3xl p-6 text-white shadow-glow-sm;
+  }
+
+  .trust-pill {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm;
+  }
+
+  .category-card-vivid {
+    @apply card-interactive relative overflow-hidden p-6;
+  }
+
+  .category-card-vivid::before {
+    content: '';
+    @apply absolute left-0 top-0 h-1.5 w-full;
+  }
+
+  .category-diarista::before {
+    @apply bg-gradient-sage;
+  }
+
+  .category-baba::before {
+    @apply bg-gradient-accent;
+  }
+
+  .icon-circle {
+    @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-white shadow-glow-sm;
+  }
+
+  .home-band-sage {
+    @apply border-y border-sage-200/60 bg-gradient-to-br from-sage-50 via-white to-sage-50/80 py-14 dark:border-sage-800/30 dark:from-brand-950 dark:via-brand-900/50 dark:to-brand-950;
+  }
+
+  .home-band-accent {
+    @apply relative overflow-hidden rounded-4xl bg-gradient-hero-vivid p-1 shadow-glow;
+  }
+
+  .home-band-accent-inner {
+    @apply rounded-[1.85rem] bg-white/95 p-8 dark:bg-brand-950/95 sm:p-10;
+  }
+
+  .section-accent-bar {
+    @apply mb-6 h-1.5 w-16 rounded-full bg-gradient-to-r from-sage-400 via-accent-400 to-brand-600;
   }
 }

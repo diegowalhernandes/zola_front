@@ -31,9 +31,12 @@ export default function Search() {
   );
 
   return (
-    <section className="container-page py-10">
-      <h1 className="heading-page">Buscar profissionais</h1>
-      <p className="mt-2 text-muted">Encontre diaristas e babás por localização, avaliação e preço.</p>
+    <section className="container-page py-10 sm:py-12">
+      <span className="eyebrow">Busca</span>
+      <h1 className="heading-page mt-4">Encontre profissionais de confiança</h1>
+      <p className="mt-2 max-w-2xl text-muted">
+        Babás, diaristas e cuidadoras verificadas — filtre por local, avaliação e preço.
+      </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
         <aside className="card h-max p-5">
@@ -46,8 +49,8 @@ export default function Search() {
                   onClick={() => setProfessionalType('')}
                   className={
                     professionalType === ''
-                      ? 'rounded-xl bg-brand-600 py-2 text-sm font-bold text-white'
-                      : 'rounded-xl border border-slate-200 py-2 text-sm font-semibold dark:border-slate-700'
+                      ? 'rounded-2xl bg-brand-600 py-2.5 text-sm font-bold text-white'
+                      : 'rounded-2xl border border-brand-100 py-2.5 text-sm font-semibold text-ink-muted dark:border-brand-800'
                   }
                 >
                   Todos
@@ -59,8 +62,8 @@ export default function Search() {
                     onClick={() => setProfessionalType(type)}
                     className={
                       professionalType === type
-                        ? 'rounded-xl bg-brand-600 py-2 text-sm font-bold text-white'
-                        : 'rounded-xl border border-slate-200 py-2 text-sm font-semibold dark:border-slate-700'
+                        ? 'rounded-2xl bg-brand-600 py-2.5 text-sm font-bold text-white'
+                        : 'rounded-2xl border border-brand-100 py-2.5 text-sm font-semibold text-ink-muted dark:border-brand-800'
                     }
                   >
                     {PROFESSIONAL_TYPE_LABELS[type]}
@@ -84,7 +87,7 @@ export default function Search() {
         </aside>
 
         <div>
-          <div className="mb-4 flex justify-between text-sm text-slate-500">
+          <div className="mb-4 flex justify-between text-sm text-muted">
             <span>{filtered.length} profissionais encontrados</span>
           </div>
 

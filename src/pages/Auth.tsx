@@ -77,17 +77,22 @@ export default function Auth() {
   return (
     <section className="container-page grid min-h-[calc(100vh-4.5rem)] items-center gap-10 py-10 lg:grid-cols-2 lg:py-16">
       <div className="hidden lg:block">
-        <span className="eyebrow">Acesso seguro</span>
+        <div className="relative overflow-hidden rounded-4xl">
+          <img
+            src="https://images.unsplash.com/photo-1584515933487-779824ad3d8f?q=80&w=900&auto=format&fit=crop"
+            alt=""
+            className="h-64 w-full rounded-4xl object-cover shadow-premium"
+          />
+        </div>
+        <span className="eyebrow mt-8">Acesso seguro</span>
         <h1 className="heading-display mt-6">
           {isRegister ? 'Comece na' : 'Bem-vindo à'} {BRAND.name}
         </h1>
-        <p className="mt-5 max-w-md text-lg text-muted">
-          Cadastre-se como cliente ou profissional. Diarista ou babá — com especificações claras desde o primeiro passo.
-        </p>
+        <p className="mt-5 max-w-md text-lg text-muted">{BRAND.tagline}</p>
         <ul className="mt-8 space-y-4">
-          {['Autenticação protegida', 'Perfis verificados', 'Agenda transparente'].map((item) => (
-            <li key={item} className="flex items-center gap-3 text-sm font-medium text-graphite-600 dark:text-graphite-300">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-400">
+          {['Autenticação protegida', 'Profissionais verificados', 'Processo humanizado'].map((item) => (
+            <li key={item} className="flex items-center gap-3 text-sm font-semibold text-ink-muted">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-sage-100 text-sage-600">
                 <FiShield />
               </span>
               {item}
@@ -97,7 +102,7 @@ export default function Auth() {
       </div>
 
       <form onSubmit={handleSubmit} className="card-elevated mx-auto w-full max-w-md p-6 sm:p-8">
-        <h2 className="text-2xl font-bold text-graphite-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-brand-700 dark:text-white">
           {isRegister ? 'Criar conta' : 'Entrar'}
         </h2>
         <p className="mt-1 text-sm text-muted lg:hidden">{BRAND.tagline}</p>
