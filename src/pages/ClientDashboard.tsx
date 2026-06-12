@@ -1,6 +1,8 @@
 ﻿import { useEffect, useState } from 'react';
-import { FiClock, FiHeart, FiStar } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiStar } from 'react-icons/fi';
+import { getMyAppointments } from '../services/appointmentService';
 import { getMyRequests } from '../services/requestService';
+import { AppointmentItem } from '../types';
 
 type RequestItem = {
   id: number;
@@ -12,18 +14,22 @@ type RequestItem = {
 
 export default function ClientDashboard() {
   const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMyRequests()
-      .then(setRequests)
+    Promise.all([getMyRequests(), getMyAppointments()])
+      .then(([requestData, appointmentData]) => {
+        setRequests(requestData);
+        setAppointments(appointmentData);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const totalRequests = requests.length;
   const pendingRequests = requests.filter((request) => request.status === 'pending').length;
-  const inProgressRequests = requests.filter((request) => request.status === 'in_progress').length;
+  const confirmedAppointments = appointments.filter((item) => item.status === 'confirmed').length;
 
   return (
     <section className="container-page py-10">
@@ -32,7 +38,7 @@ export default function ClientDashboard() {
       <div className="mt-8 grid gap-5 md:grid-cols-3">
         {[
           { label: 'Pedidos realizados', value: totalRequests.toString(), icon: FiClock },
-          { label: 'Pedidos em andamento', value: inProgressRequests.toString(), icon: FiHeart },
+          { label: 'Agendamentos confirmados', value: confirmedAppointments.toString(), icon: FiCalendar },
           { label: 'Aguardando atendimento', value: pendingRequests.toString(), icon: FiStar },
         ].map((card) => (
           <div className="stat-card" key={card.label}>
@@ -43,7 +49,30 @@ export default function ClientDashboard() {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <div className="card p-6">
+          <h2 className="text-xl font-bold">Meus agendamentos</h2>
+          <div className="mt-4 space-y-3">
+            {loading && <p className="text-slate-500">Carregando...</p>}
+            {!loading && appointments.length === 0 && (
+              <p className="text-slate-500">Nenhum agendamento ainda.</p>
+            )}
+            {!loading &&
+              appointments.map((item) => (
+                <div key={item.id} className="list-row">
+                  <strong>
+                    {item.professional_name ?? `Profissional #${item.professional_id}`}
+                  </strong>
+                  <p className="text-sm text-slate-500">
+                    {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString('pt-BR')} às{' '}
+                    {item.time_slot} · {item.status}
+                    {item.deposit_paid ? ` · sinal ${item.deposit_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : ''}
+                  </p>
+                </div>
+              ))}
+          </div>
+        </div>
+
         <div className="card p-6">
           <h2 className="text-xl font-bold">Histórico de pedidos</h2>
 

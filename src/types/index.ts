@@ -65,6 +65,38 @@ export interface AppointmentPayload {
   notes?: string;
 }
 
+export interface DepositPreview {
+  total_amount: number;
+  deposit_amount: number;
+  deposit_percent: number;
+  payments_enabled: boolean;
+}
+
+export interface AppointmentCheckout {
+  appointment_id: number;
+  checkout_url: string | null;
+  deposit_amount: number;
+  total_amount: number;
+  payments_required: boolean;
+  status: string;
+}
+
+export interface AppointmentItem {
+  id: number;
+  professional_id: number;
+  client_id: number;
+  appointment_date: string;
+  time_slot: string;
+  status: string;
+  deposit_amount: number;
+  deposit_paid: boolean;
+  payment_status: string;
+  notes?: string | null;
+  professional_name?: string | null;
+  client_name?: string | null;
+  created_at: string;
+}
+
 export interface ServiceOrder {
   id: string;
   title: string;

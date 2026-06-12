@@ -1,9 +1,10 @@
 ﻿import { useEffect, useState } from "react";
-import { FiCamera, FiDollarSign, FiStar, FiTool, FiTrendingUp } from "react-icons/fi";
+import { FiCamera, FiCalendar, FiDollarSign, FiStar, FiTool, FiTrendingUp } from "react-icons/fi";
+import { getIncomingAppointments } from "../services/appointmentService";
 import { uploadImage } from "../services/uploadService";
 import { getMyProfessional, updateProfessional } from "../services/professionalService";
 import { getMyRequests } from "../services/requestService";
-import { Professional, ProfessionalType, WeeklyAvailability } from "../types";
+import { AppointmentItem, Professional, ProfessionalType, WeeklyAvailability } from "../types";
 import { AvailabilityEditor } from "../components/availability/AvailabilityEditor";
 import {
   DEFAULT_WEEKLY_AVAILABILITY,
@@ -22,6 +23,7 @@ type RequestItem = {
 export default function ProfessionalDashboard() {
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [incomingAppointments, setIncomingAppointments] = useState<AppointmentItem[]>([]);
   const [photoUrl, setPhotoUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -53,6 +55,9 @@ export default function ProfessionalDashboard() {
 
         const requestData = await getMyRequests();
         setRequests(requestData);
+
+        const appointmentData = await getIncomingAppointments();
+        setIncomingAppointments(appointmentData);
       } catch (error) {
         console.error("Erro ao carregar perfil:", error);
       } finally {
@@ -147,6 +152,34 @@ export default function ProfessionalDashboard() {
             </p>
             <div className="mt-4">
               <AvailabilityEditor value={availability} onChange={setAvailability} />
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <h2 className="flex items-center gap-2 text-xl font-bold">
+              <FiCalendar className="text-brand-600" />
+              Agendamentos confirmados
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Horários reservados após pagamento do sinal pelo cliente.
+            </p>
+            <div className="mt-4 space-y-3">
+              {incomingAppointments.length === 0 && (
+                <p className="text-slate-500">Nenhum agendamento confirmado ainda.</p>
+              )}
+              {incomingAppointments.map((item) => (
+                <div key={item.id} className="flex items-center justify-between rounded-2xl bg-sage-50 p-4 dark:bg-sage-900/20">
+                  <div>
+                    <strong>{item.client_name ?? `Cliente #${item.client_id}`}</strong>
+                    <p className="text-sm text-slate-500">
+                      {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString("pt-BR")} às {item.time_slot}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-sage-100 px-3 py-1 text-sm font-bold text-sage-700">
+                    sinal pago
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 

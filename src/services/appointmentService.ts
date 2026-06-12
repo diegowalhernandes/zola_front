@@ -1,5 +1,11 @@
 import { api } from './api';
-import { AppointmentPayload, DayAvailability } from '../types';
+import {
+  AppointmentCheckout,
+  AppointmentItem,
+  AppointmentPayload,
+  DayAvailability,
+  DepositPreview,
+} from '../types';
 
 export async function getProfessionalAvailability(
   professionalId: number,
@@ -12,6 +18,32 @@ export async function getProfessionalAvailability(
   return response.data;
 }
 
+export async function getDepositPreview(professionalId: number): Promise<DepositPreview> {
+  const response = await api.get<DepositPreview>(`/appointments/deposit-preview/${professionalId}`);
+  return response.data;
+}
+
+export async function checkoutAppointment(payload: AppointmentPayload): Promise<AppointmentCheckout> {
+  const response = await api.post<AppointmentCheckout>('/appointments/checkout', payload);
+  return response.data;
+}
+
+export async function cancelAwaitingPayment(appointmentId: number) {
+  const response = await api.post(`/appointments/${appointmentId}/cancel-awaiting`);
+  return response.data;
+}
+
+export async function getMyAppointments(): Promise<AppointmentItem[]> {
+  const response = await api.get<AppointmentItem[]>('/appointments/me');
+  return response.data;
+}
+
+export async function getIncomingAppointments(): Promise<AppointmentItem[]> {
+  const response = await api.get<AppointmentItem[]>('/appointments/incoming');
+  return response.data;
+}
+
+/** @deprecated use checkoutAppointment */
 export async function bookAppointment(payload: AppointmentPayload) {
   const response = await api.post('/appointments', payload);
   return response.data;

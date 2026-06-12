@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FiCalendar, FiClock } from 'react-icons/fi';
-import { getProfessionalAvailability, bookAppointment } from '../../services/appointmentService';
-import { DayAvailability } from '../../types';
+import { FiCalendar, FiClock, FiCreditCard } from 'react-icons/fi';
+import {
+  checkoutAppointment,
+  getDepositPreview,
+  getProfessionalAvailability,
+} from '../../services/appointmentService';
+import { DepositPreview, DayAvailability } from '../../types';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { parseApiError } from '../../services/api';
@@ -23,10 +27,15 @@ function formatDisplayDate(iso: string) {
   });
 }
 
+function formatCurrency(value: number) {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
 export function AvailabilityCalendar({ professionalId, professionalName }: Props) {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const [days, setDays] = useState<DayAvailability[]>([]);
+  const [depositPreview, setDepositPreview] = useState<DepositPreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -44,10 +53,14 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
     async function load() {
       setLoading(true);
       try {
-        const data = await getProfessionalAvailability(professionalId, range.from, range.to);
-        setDays(data);
-        if (data.length > 0) {
-          setSelectedDate(data[0].date);
+        const [availability, preview] = await Promise.all([
+          getProfessionalAvailability(professionalId, range.from, range.to),
+          getDepositPreview(professionalId),
+        ]);
+        setDays(availability);
+        setDepositPreview(preview);
+        if (availability.length > 0) {
+          setSelectedDate(availability[0].date);
         }
       } catch (error) {
         console.error(error);
@@ -73,13 +86,22 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
 
     setBooking(true);
     try {
-      await bookAppointment({
+      const result = await checkoutAppointment({
         professional_id: professionalId,
         appointment_date: selectedDate,
         time_slot: selectedSlot,
         notes: notes.trim() || undefined,
       });
-      toast(`Agendamento solicitado com ${professionalName} para ${formatDisplayDate(selectedDate)} às ${selectedSlot}.`);
+
+      if (result.payments_required && result.checkout_url) {
+        toast('Redirecionando para pagamento do sinal...');
+        window.location.href = result.checkout_url;
+        return;
+      }
+
+      toast(
+        `Agendamento confirmado com ${professionalName} para ${formatDisplayDate(selectedDate)} às ${selectedSlot}.`
+      );
       setSelectedSlot(null);
       setNotes('');
       const refreshed = await getProfessionalAvailability(professionalId, range.from, range.to);
@@ -157,19 +179,43 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
         </div>
       )}
 
-      {selectedSlot && (
+      {selectedSlot && depositPreview && (
         <div className="rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-800 dark:bg-brand-900/20">
           <p className="text-sm font-semibold text-brand-800 dark:text-brand-100">
             Resumo: {formatDisplayDate(selectedDate!)} às {selectedSlot}
           </p>
+
+          <div className="mt-3 rounded-2xl border border-accent-200 bg-accent-50/80 p-4 dark:border-accent-700/40 dark:bg-accent-900/20">
+            <p className="flex items-center gap-2 text-sm font-bold text-brand-800 dark:text-brand-100">
+              <FiCreditCard className="text-accent-600" />
+              {depositPreview.payments_enabled
+                ? `Sinal de ${formatCurrency(depositPreview.deposit_amount)} para confirmar`
+                : 'Agendamento sem cobrança (ambiente de testes)'}
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              {depositPreview.payments_enabled ? (
+                <>
+                  {depositPreview.deposit_percent}% do valor estimado ({formatCurrency(depositPreview.total_amount)}).
+                  O horário só fica reservado após o pagamento do sinal.
+                </>
+              ) : (
+                'Configure o Stripe no servidor para exigir pagamento em produção.'
+              )}
+            </p>
+          </div>
+
           <textarea
             className="input mt-3 h-20"
             placeholder="Observações para o profissional (opcional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-          <button type="button" className="btn-primary mt-3 w-full" disabled={booking} onClick={handleBook}>
-            {booking ? 'Agendando...' : 'Confirmar agendamento'}
+          <button type="button" className="btn-accent mt-3 w-full shadow-warm" disabled={booking} onClick={handleBook}>
+            {booking
+              ? 'Processando...'
+              : depositPreview.payments_enabled
+                ? `Pagar sinal ${formatCurrency(depositPreview.deposit_amount)} e agendar`
+                : 'Confirmar agendamento'}
           </button>
         </div>
       )}
