@@ -70,6 +70,40 @@ export interface DepositPreview {
   deposit_amount: number;
   deposit_percent: number;
   payments_enabled: boolean;
+  slot_count?: number;
+}
+
+export type PaymentMode = 'deposit' | 'full';
+
+export interface SlotSelection {
+  appointment_date: string;
+  time_slot: string;
+}
+
+export interface BatchCheckoutPayload {
+  professional_id: number;
+  slots: SlotSelection[];
+  notes?: string;
+  payment_mode: PaymentMode;
+}
+
+export interface BatchCheckout {
+  batch_id: string;
+  appointment_ids: number[];
+  checkout_url: string | null;
+  total_amount: number;
+  amount_due: number;
+  deposit_amount: number;
+  payment_mode: PaymentMode;
+  payments_required: boolean;
+  status: string;
+}
+
+export interface BookingPaymentState {
+  professionalId: number;
+  professionalName: string;
+  slots: SlotSelection[];
+  notes?: string;
 }
 
 export interface AppointmentCheckout {
@@ -88,9 +122,13 @@ export interface AppointmentItem {
   appointment_date: string;
   time_slot: string;
   status: string;
+  total_amount?: number;
   deposit_amount: number;
+  amount_due?: number;
   deposit_paid: boolean;
   payment_status: string;
+  payment_mode?: PaymentMode | null;
+  batch_id?: string | null;
   notes?: string | null;
   professional_name?: string | null;
   client_name?: string | null;

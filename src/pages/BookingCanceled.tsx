@@ -1,19 +1,22 @@
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FiAlertCircle } from 'react-icons/fi';
-import { cancelAwaitingPayment } from '../services/appointmentService';
+import { cancelAwaitingBatch, cancelAwaitingPayment } from '../services/appointmentService';
 
 export default function BookingCanceled() {
   const [params] = useSearchParams();
+  const batchId = params.get('batch_id');
   const appointmentId = params.get('appointment_id');
 
   useEffect(() => {
-    if (!appointmentId) return;
-
-    cancelAwaitingPayment(Number(appointmentId)).catch(() => {
-      // Reserva pode já ter expirado — ok
-    });
-  }, [appointmentId]);
+    if (batchId) {
+      cancelAwaitingBatch(batchId).catch(() => {});
+      return;
+    }
+    if (appointmentId) {
+      cancelAwaitingPayment(Number(appointmentId)).catch(() => {});
+    }
+  }, [batchId, appointmentId]);
 
   return (
     <section className="container-page py-20">
@@ -21,7 +24,7 @@ export default function BookingCanceled() {
         <FiAlertCircle className="mx-auto text-5xl text-accent-500" />
         <h1 className="heading-page mt-4">Pagamento não concluído</h1>
         <p className="mt-3 text-muted">
-          O horário não foi reservado. Você pode escolher outro horário e tentar novamente.
+          Os horários não foram reservados. Você pode escolher outros horários e tentar novamente.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link to="/buscar" className="btn-primary">

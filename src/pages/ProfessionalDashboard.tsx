@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { FiCamera, FiCalendar, FiDollarSign, FiStar, FiTool, FiTrendingUp } from "react-icons/fi";
+import { FiCamera, FiCalendar, FiDollarSign, FiStar, FiTool } from "react-icons/fi";
 import { getIncomingAppointments } from "../services/appointmentService";
 import { uploadImage } from "../services/uploadService";
 import { getMyProfessional, updateProfessional } from "../services/professionalService";
@@ -118,8 +118,24 @@ export default function ProfessionalDashboard() {
 
   const specFields = getSpecFields(professionalType);
   const totalRequests = requests.length;
-  const completedRequests = requests.filter((request) => request.status === "done").length;
-  const totalRevenue = requests.reduce((sum) => sum + 0, 0);
+  const confirmedAppointments = incomingAppointments.filter((item) => item.status === "confirmed").length;
+  const pendingPaymentAppointments = incomingAppointments.filter((item) => item.status === "awaiting_payment").length;
+
+  function appointmentStatusLabel(item: AppointmentItem) {
+    if (item.status === "awaiting_payment") return "Aguardando pagamento";
+    if (item.payment_mode === "full") return "Pago integral";
+    return "Confirmado";
+  }
+
+  function appointmentStatusClass(item: AppointmentItem) {
+    if (item.status === "awaiting_payment") {
+      return "rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-800";
+    }
+    if (item.payment_mode === "full") {
+      return "rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700";
+    }
+    return "rounded-full bg-sage-100 px-3 py-1 text-sm font-bold text-sage-700";
+  }
 
   return (
     <section>
@@ -130,10 +146,10 @@ export default function ProfessionalDashboard() {
 
       <div className="mt-8 grid gap-5 md:grid-cols-4">
         {[
-          { label: "Pedidos recebidos", value: totalRequests.toString(), icon: FiTool },
-          { label: "Serviços concluídos", value: completedRequests.toString(), icon: FiTrendingUp },
+          { label: "Agendamentos confirmados", value: confirmedAppointments.toString(), icon: FiCalendar },
+          { label: "Aguardando pagamento", value: pendingPaymentAppointments.toString(), icon: FiTool },
           { label: "Avaliação média", value: (professional?.rating ?? 0).toFixed(1), icon: FiStar },
-          { label: "Ganhos", value: `R$ ${totalRevenue.toFixed(0)}`, icon: FiDollarSign },
+          { label: "Pedidos recebidos", value: totalRequests.toString(), icon: FiDollarSign },
         ].map((card) => (
           <div className="card p-6" key={card.label}>
             <card.icon className="text-3xl text-brand-600" />
@@ -158,26 +174,31 @@ export default function ProfessionalDashboard() {
           <div className="card p-6">
             <h2 className="flex items-center gap-2 text-xl font-bold">
               <FiCalendar className="text-brand-600" />
-              Agendamentos confirmados
+              Agendamentos de clientes
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Horários reservados após pagamento do sinal pelo cliente.
+              Horários solicitados e confirmados na sua agenda.
             </p>
             <div className="mt-4 space-y-3">
               {incomingAppointments.length === 0 && (
-                <p className="text-slate-500">Nenhum agendamento confirmado ainda.</p>
+                <p className="text-slate-500">Nenhum agendamento ainda.</p>
               )}
               {incomingAppointments.map((item) => (
-                <div key={item.id} className="flex items-center justify-between rounded-2xl bg-sage-50 p-4 dark:bg-sage-900/20">
-                  <div>
-                    <strong>{item.client_name ?? `Cliente #${item.client_id}`}</strong>
-                    <p className="text-sm text-slate-500">
-                      {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString("pt-BR")} às {item.time_slot}
-                    </p>
+                <div key={item.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <strong>{item.client_name ?? `Cliente #${item.client_id}`}</strong>
+                      <p className="text-sm text-slate-500">
+                        {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString("pt-BR")} às {item.time_slot}
+                      </p>
+                      {item.notes && (
+                        <p className="mt-2 text-sm text-muted">Obs.: {item.notes}</p>
+                      )}
+                    </div>
+                    <span className={appointmentStatusClass(item)}>
+                      {appointmentStatusLabel(item)}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-sage-100 px-3 py-1 text-sm font-bold text-sage-700">
-                    sinal pago
-                  </span>
                 </div>
               ))}
             </div>

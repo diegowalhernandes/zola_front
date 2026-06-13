@@ -8,7 +8,7 @@ export default function BookingSuccess() {
         <FiCheckCircle className="mx-auto text-5xl text-sage-500" />
         <h1 className="heading-page mt-4">Agendamento confirmado!</h1>
         <p className="mt-3 text-muted">
-          Seu sinal foi recebido e o horário está reservado na agenda do profissional.
+          Seu pagamento foi recebido e os horários estão reservados na agenda do profissional.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link to="/dashboard/cliente" className="btn-primary">

@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FiCalendar, FiClock, FiCreditCard } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiCalendar, FiClock, FiX } from 'react-icons/fi';
 import {
-  checkoutAppointment,
-  getDepositPreview,
   getProfessionalAvailability,
+  parseSlotKey,
+  slotKey,
 } from '../../services/appointmentService';
-import { DepositPreview, DayAvailability } from '../../types';
+import { DayAvailability } from '../../types';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { parseApiError } from '../../services/api';
 
 type Props = {
   professionalId: number;
@@ -27,20 +27,15 @@ function formatDisplayDate(iso: string) {
   });
 }
 
-function formatCurrency(value: number) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
 export function AvailabilityCalendar({ professionalId, professionalName }: Props) {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const [days, setDays] = useState<DayAvailability[]>([]);
-  const [depositPreview, setDepositPreview] = useState<DepositPreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState('');
-  const [booking, setBooking] = useState(false);
 
   const range = useMemo(() => {
     const from = new Date();
@@ -61,14 +56,6 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
       } catch (error) {
         console.error(error);
         setDays([]);
-      }
-
-      try {
-        const preview = await getDepositPreview(professionalId);
-        setDepositPreview(preview);
-      } catch (error) {
-        console.error(error);
-        setDepositPreview(null);
       } finally {
         setLoading(false);
       }
@@ -79,42 +66,45 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
 
   const slotsForSelectedDay = days.find((day) => day.date === selectedDate)?.slots ?? [];
 
-  async function handleBook() {
-    if (!selectedDate || !selectedSlot) {
-      return toast('Selecione um dia e horário disponível.');
+  function toggleSlot(date: string, time: string) {
+    const key = slotKey(date, time);
+    setSelectedSlots((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
+  function removeSlot(key: string) {
+    setSelectedSlots((current) => {
+      const next = new Set(current);
+      next.delete(key);
+      return next;
+    });
+  }
+
+  function handleContinue() {
+    if (selectedSlots.size === 0) {
+      return toast('Selecione ao menos um horário.');
     }
 
     if (!isAuthenticated || user?.role !== 'client') {
-      return toast('Faça login como cliente para agendar um horário.');
+      return toast('Faça login como cliente para agendar.');
     }
 
-    setBooking(true);
-    try {
-      const result = await checkoutAppointment({
-        professional_id: professionalId,
-        appointment_date: selectedDate,
-        time_slot: selectedSlot,
+    const slots = Array.from(selectedSlots).map(parseSlotKey);
+    navigate('/agendamento/pagamento', {
+      state: {
+        professionalId,
+        professionalName,
+        slots,
         notes: notes.trim() || undefined,
-      });
-
-      if (result.payments_required && result.checkout_url) {
-        toast('Redirecionando para pagamento do sinal...');
-        window.location.href = result.checkout_url;
-        return;
-      }
-
-      toast(
-        `Agendamento confirmado com ${professionalName} para ${formatDisplayDate(selectedDate)} às ${selectedSlot}.`
-      );
-      setSelectedSlot(null);
-      setNotes('');
-      const refreshed = await getProfessionalAvailability(professionalId, range.from, range.to);
-      setDays(refreshed);
-    } catch (error) {
-      toast(parseApiError(error).message);
-    } finally {
-      setBooking(false);
-    }
+      },
+    });
   }
 
   if (loading) {
@@ -131,6 +121,10 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
 
   return (
     <div className="space-y-5">
+      <p className="text-sm text-muted">
+        Selecione horários em quantos dias quiser. Você pode trocar de dia sem perder os horários já escolhidos.
+      </p>
+
       <div>
         <h3 className="flex items-center gap-2 text-lg font-bold">
           <FiCalendar className="text-brand-600" />
@@ -141,10 +135,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
             <button
               key={day.date}
               type="button"
-              onClick={() => {
-                setSelectedDate(day.date);
-                setSelectedSlot(null);
-              }}
+              onClick={() => setSelectedDate(day.date)}
               className={
                 selectedDate === day.date
                   ? 'rounded-2xl bg-brand-600 px-4 py-2 text-sm font-bold text-white'
@@ -165,48 +156,56 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
             Horários em {formatDisplayDate(selectedDate)}
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
-            {slotsForSelectedDay.map((slot) => (
-              <button
-                key={slot}
-                type="button"
-                onClick={() => setSelectedSlot(slot)}
-                className={
-                  selectedSlot === slot
-                    ? 'rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white'
-                    : 'rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'
-                }
-              >
-                {slot}
-              </button>
-            ))}
+            {slotsForSelectedDay.map((slot) => {
+              const key = slotKey(selectedDate, slot);
+              const active = selectedSlots.has(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => toggleSlot(selectedDate, slot)}
+                  className={
+                    active
+                      ? 'rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white'
+                      : 'rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'
+                  }
+                >
+                  {slot}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {selectedSlot && depositPreview && (
+      {selectedSlots.size > 0 && (
         <div className="rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-800 dark:bg-brand-900/20">
-          <p className="text-sm font-semibold text-brand-800 dark:text-brand-100">
-            Resumo: {formatDisplayDate(selectedDate!)} às {selectedSlot}
-          </p>
-
-          <div className="mt-3 rounded-2xl border border-accent-200 bg-accent-50/80 p-4 dark:border-accent-700/40 dark:bg-accent-900/20">
-            <p className="flex items-center gap-2 text-sm font-bold text-brand-800 dark:text-brand-100">
-              <FiCreditCard className="text-accent-600" />
-              {depositPreview.payments_enabled
-                ? `Sinal de ${formatCurrency(depositPreview.deposit_amount)} para confirmar`
-                : 'Agendamento sem cobrança no momento'}
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              {depositPreview.payments_enabled ? (
-                <>
-                  {depositPreview.deposit_percent}% do valor estimado ({formatCurrency(depositPreview.total_amount)}).
-                  O horário só fica reservado após o pagamento do sinal.
-                </>
-              ) : (
-                'O sinal será cobrado quando o pagamento estiver ativo no servidor.'
-              )}
-            </p>
-          </div>
+          <h4 className="text-sm font-bold text-brand-800 dark:text-brand-100">
+            Horários selecionados ({selectedSlots.size})
+          </h4>
+          <ul className="mt-3 space-y-2">
+            {Array.from(selectedSlots).map((key) => {
+              const { appointment_date, time_slot } = parseSlotKey(key);
+              return (
+                <li
+                  key={key}
+                  className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2 text-sm dark:bg-brand-950/40"
+                >
+                  <span>
+                    {formatDisplayDate(appointment_date)} às {time_slot}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeSlot(key)}
+                    className="text-muted hover:text-red-600"
+                    aria-label="Remover horário"
+                  >
+                    <FiX />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
 
           <textarea
             className="input mt-3 h-20"
@@ -214,12 +213,9 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-          <button type="button" className="btn-accent mt-3 w-full shadow-warm" disabled={booking} onClick={handleBook}>
-            {booking
-              ? 'Processando...'
-              : depositPreview.payments_enabled
-                ? `Pagar sinal ${formatCurrency(depositPreview.deposit_amount)} e agendar`
-                : 'Confirmar agendamento'}
+
+          <button type="button" className="btn-primary mt-3 w-full" onClick={handleContinue}>
+            Continuar para pagamento ({selectedSlots.size} horário{selectedSlots.size > 1 ? 's' : ''})
           </button>
         </div>
       )}
