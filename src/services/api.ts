@@ -39,8 +39,16 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     const status = error.response?.status ?? 0;
     const detail = error.response?.data?.detail;
+
+    if (status === 401) {
+      localStorage.removeItem('auth:token');
+      localStorage.removeItem('auth:user');
+    }
+
     const message =
-      detail ||
+      status === 401
+        ? 'Sessão expirada. Faça login novamente.'
+        : detail ||
       (status === 404
         ? `Rota não encontrada (${API_BASE_URL}). Confira se o backend FastAPI está rodando.`
         : error.response?.statusText) ||

@@ -48,7 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const value = useMemo(
-    () => ({ user, isAuthenticated: Boolean(user), login, logout }),
+    () => ({
+      user,
+      isAuthenticated: Boolean(user) && Boolean(localStorage.getItem('auth:token')),
+      login,
+      logout,
+    }),
     [user]
   );
 
