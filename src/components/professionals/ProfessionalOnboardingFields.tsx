@@ -33,8 +33,8 @@ export function ProfessionalOnboardingFields({ value, onChange }: Props) {
   const specFields = getSpecFields(value.professional_type);
 
   return (
-    <div className="space-y-4 rounded-3xl border border-sage-200/80 bg-sage-50/40 p-4 dark:border-sage-800/40 dark:bg-sage-900/10">
-      <p className="text-sm font-semibold text-brand-700 dark:text-sage-200">
+    <div className="space-y-4 rounded-3xl border border-brand-200/80 bg-brand-50/40 p-4 dark:border-brand-800/40 dark:bg-brand-900/10">
+      <p className="text-sm font-semibold text-brand-700 dark:text-brand-200">
         Dados do perfil profissional
       </p>
 

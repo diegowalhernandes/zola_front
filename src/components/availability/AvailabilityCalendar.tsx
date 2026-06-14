@@ -137,9 +137,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
               type="button"
               onClick={() => setSelectedDate(day.date)}
               className={
-                selectedDate === day.date
-                  ? 'rounded-2xl bg-brand-600 px-4 py-2 text-sm font-bold text-white'
-                  : 'rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
+                selectedDate === day.date ? 'day-tab day-tab-active' : 'day-tab day-tab-inactive'
               }
             >
               {formatDisplayDate(day.date)}
@@ -164,11 +162,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
                   key={key}
                   type="button"
                   onClick={() => toggleSlot(selectedDate, slot)}
-                  className={
-                    active
-                      ? 'rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white'
-                      : 'rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'
-                  }
+                  className={active ? 'slot-btn slot-btn-selected' : 'slot-btn slot-btn-available'}
                 >
                   {slot}
                 </button>
@@ -179,7 +173,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
       )}
 
       {selectedSlots.size > 0 && (
-        <div className="rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-800 dark:bg-brand-900/20">
+        <div className="rounded-2xl border border-brand-200/80 bg-brand-50/50 p-4 dark:border-brand-800 dark:bg-brand-900/20 sm:p-5">
           <h4 className="text-sm font-bold text-brand-800 dark:text-brand-100">
             Horários selecionados ({selectedSlots.size})
           </h4>

@@ -134,27 +134,29 @@ export default function ProfessionalDashboard() {
     if (item.payment_mode === "full") {
       return "rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700";
     }
-    return "rounded-full bg-sage-100 px-3 py-1 text-sm font-bold text-sage-700";
+    return "rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700";
   }
 
   return (
     <section>
-      <h1 className="heading-page">Dashboard do Profissional</h1>
-      <p className="mt-2 text-muted">
-        Gerencie seu perfil de {PROFESSIONAL_TYPE_LABELS[professionalType]}, especificações e agenda semanal.
-      </p>
+      <header className="page-header">
+        <h1 className="heading-page">Dashboard do Profissional</h1>
+        <p className="text-sm text-muted">
+          Gerencie seu perfil de {PROFESSIONAL_TYPE_LABELS[professionalType]}, especificações e agenda semanal.
+        </p>
+      </header>
 
-      <div className="mt-8 grid gap-5 md:grid-cols-4">
+      <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         {[
           { label: "Agendamentos confirmados", value: confirmedAppointments.toString(), icon: FiCalendar },
           { label: "Aguardando pagamento", value: pendingPaymentAppointments.toString(), icon: FiTool },
           { label: "Avaliação média", value: (professional?.rating ?? 0).toFixed(1), icon: FiStar },
           { label: "Pedidos recebidos", value: totalRequests.toString(), icon: FiDollarSign },
         ].map((card) => (
-          <div className="card p-6" key={card.label}>
-            <card.icon className="text-3xl text-brand-600" />
-            <strong className="mt-4 block text-3xl">{card.value}</strong>
-            <span className="text-sm text-slate-500">{card.label}</span>
+          <div className="stat-card text-left sm:text-center" key={card.label}>
+            <card.icon className="text-2xl text-brand-600 sm:mx-auto sm:text-3xl" />
+            <strong className="mt-3 block text-2xl font-display sm:mt-4 sm:text-3xl">{card.value}</strong>
+            <span className="text-xs text-muted sm:text-sm">{card.label}</span>
           </div>
         ))}
       </div>

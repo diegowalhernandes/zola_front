@@ -75,13 +75,13 @@ export default function Auth() {
   }
 
   return (
-    <section className="container-page grid min-h-[calc(100vh-4.5rem)] items-center gap-10 py-10 lg:grid-cols-2 lg:py-16">
+    <section className="container-page grid min-h-[calc(100vh-3.5rem)] items-start gap-8 py-6 sm:min-h-[calc(100vh-4.5rem)] sm:items-center sm:gap-10 sm:py-10 lg:grid-cols-2 lg:py-16">
       <div className="hidden lg:block">
         <div className="relative overflow-hidden rounded-4xl">
           <img
-            src="https://images.unsplash.com/photo-1584515933487-779824ad3d8f?q=80&w=900&auto=format&fit=crop"
-            alt=""
-            className="h-64 w-full rounded-4xl object-cover shadow-premium"
+            src={BRAND.authImage}
+            alt="Ambiente acolhedor de lar e família"
+            className="h-64 w-full rounded-4xl object-cover shadow-premium lg:h-[28rem]"
           />
         </div>
         <span className="eyebrow mt-8">Acesso seguro</span>
@@ -92,7 +92,7 @@ export default function Auth() {
         <ul className="mt-8 space-y-4">
           {['Autenticação protegida', 'Profissionais verificados', 'Processo humanizado'].map((item) => (
             <li key={item} className="flex items-center gap-3 text-sm font-semibold text-ink-muted">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-sage-100 text-sage-600">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-100 text-brand-600">
                 <FiShield />
               </span>
               {item}
@@ -101,22 +101,33 @@ export default function Auth() {
         </ul>
       </div>
 
-      <form onSubmit={handleSubmit} className="card-elevated mx-auto w-full max-w-md p-6 sm:p-8">
-        <h2 className="text-2xl font-bold text-brand-700 dark:text-white">
+      <form onSubmit={handleSubmit} className="card-elevated mx-auto w-full max-w-md p-5 sm:p-8">
+        <div className="trust-banner mb-5 lg:hidden">
+          <FiShield className="mt-0.5 shrink-0 text-brand-600" />
+          <div>
+            <p className="font-semibold text-brand-800 dark:text-brand-200">Acesso seguro</p>
+            <p className="mt-0.5 text-xs text-muted">{BRAND.tagline}</p>
+          </div>
+        </div>
+
+        <h2 className="font-display text-2xl font-bold text-brand-700 dark:text-white">
           {isRegister ? 'Criar conta' : 'Entrar'}
         </h2>
-        <p className="mt-1 text-sm text-muted lg:hidden">{BRAND.tagline}</p>
+        <p className="mt-1 text-sm text-muted">
+          {isRegister ? 'Cadastre-se em poucos passos.' : 'Acesse sua conta para continuar.'}
+        </p>
 
         {errorMessage && <div className="alert-error mt-4">{errorMessage}</div>}
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
+        <p className="form-label mt-5">Eu sou</p>
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => {
               setRole('client');
               setErrorMessage('');
             }}
-            className={role === 'client' ? 'btn-primary' : 'btn-secondary'}
+            className={role === 'client' ? 'filter-chip filter-chip-active' : 'filter-chip'}
           >
             Cliente
           </button>
@@ -126,24 +137,30 @@ export default function Auth() {
               setRole('professional');
               setErrorMessage('');
             }}
-            className={role === 'professional' ? 'btn-primary' : 'btn-secondary'}
+            className={role === 'professional' ? 'filter-chip filter-chip-active' : 'filter-chip'}
           >
             Profissional
           </button>
         </div>
 
         {isRegister && (
-          <input
-            name="name"
-            className="input mt-4"
-            placeholder="Nome completo"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setErrorMessage('');
-            }}
-            required
-          />
+          <div className="mt-4">
+            <label className="form-label" htmlFor="auth-name">
+              Nome completo
+            </label>
+            <input
+              id="auth-name"
+              name="name"
+              className="input"
+              placeholder="Seu nome"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrorMessage('');
+              }}
+              required
+            />
+          </div>
         )}
 
         {isRegister && role === 'professional' && (
@@ -152,26 +169,41 @@ export default function Auth() {
           </div>
         )}
 
-        <label className="mt-5 block text-sm font-semibold text-graphite-700 dark:text-graphite-200">E-mail</label>
-        <div className="relative mt-2">
-          <FiMail className="absolute left-4 top-3.5 text-graphite-400" />
-          <input name="email" className="input pl-11" placeholder="voce@email.com" onChange={() => setErrorMessage('')} />
-        </div>
-
-        <label className="mt-4 block text-sm font-semibold text-graphite-700 dark:text-graphite-200">Senha</label>
-        <div className="relative mt-2">
-          <FiLock className="absolute left-4 top-3.5 text-graphite-400" />
+        <label className="form-label mt-5" htmlFor="auth-email">
+          E-mail
+        </label>
+        <div className="relative">
+          <FiMail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-light" />
           <input
-            name="password"
-            type="password"
+            id="auth-email"
+            name="email"
+            type="email"
+            autoComplete="email"
             className="input pl-11"
-            placeholder="••••••"
+            placeholder="voce@email.com"
             onChange={() => setErrorMessage('')}
           />
         </div>
 
+        <label className="form-label mt-4" htmlFor="auth-password">
+          Senha
+        </label>
+        <div className="relative">
+          <FiLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-light" />
+          <input
+            id="auth-password"
+            name="password"
+            type="password"
+            autoComplete={isRegister ? 'new-password' : 'current-password'}
+            className="input pl-11"
+            placeholder="Mínimo 6 caracteres"
+            onChange={() => setErrorMessage('')}
+          />
+        </div>
+        <p className="form-hint">Use pelo menos 6 caracteres.</p>
+
         <button disabled={loading} className="btn-primary mt-6 w-full">
-          {loading ? 'Carregando...' : 'Continuar'}
+          {loading ? 'Carregando...' : isRegister ? 'Criar conta' : 'Entrar'}
         </button>
         <button
           type="button"
@@ -179,7 +211,7 @@ export default function Auth() {
             setIsRegister(!isRegister);
             setErrorMessage('');
           }}
-          className="mt-4 w-full text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
+          className="btn-ghost mt-3 w-full"
         >
           {isRegister ? 'Já tenho conta' : 'Criar cadastro'}
         </button>

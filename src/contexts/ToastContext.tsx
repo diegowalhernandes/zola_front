@@ -18,7 +18,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <AnimatePresence>
         {message && (
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-graphite-700/50 bg-navy-900 px-5 py-4 text-sm font-medium text-white shadow-premium dark:border-graphite-600/50 dark:bg-white dark:text-navy-950">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="fixed bottom-6 left-4 right-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-brand-700/20 bg-brand-800 px-5 py-4 text-sm font-medium text-white shadow-premium dark:border-brand-600/30 dark:bg-white dark:text-brand-900 sm:left-auto sm:right-6">
             <FiCheckCircle className="text-brand-500" /> {message}
           </motion.div>
         )}
