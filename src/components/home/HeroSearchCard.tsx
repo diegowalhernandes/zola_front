@@ -25,7 +25,7 @@ export function HeroSearchCard() {
     <form
       onSubmit={handleSubmit}
       className="hero-search-card"
-      aria-label="Buscar cuidadores"
+      aria-label="Buscar profissionais"
     >
       <div className="hero-search-field">
         <label className="hero-search-label" htmlFor="hero-service-type">
@@ -69,7 +69,7 @@ export function HeroSearchCard() {
 
       <button type="submit" className="hero-search-btn">
         <FiSearch aria-hidden />
-        Buscar cuidadores
+        Buscar profissionais
       </button>
     </form>
   );

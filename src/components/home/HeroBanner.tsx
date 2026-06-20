@@ -5,7 +5,7 @@ import { BRAND } from '../../design/brand';
 import { HeroSearchCard } from './HeroSearchCard';
 
 const BENEFITS = [
-  'Cuidadores verificados',
+  'Profissionais verificadas',
   'Avaliações reais',
   'Suporte humanizado',
   'Pagamento seguro',
@@ -55,12 +55,12 @@ export function HeroBanner() {
             </span>
 
             <h1 id="hero-heading" className="hero-premium-title">
-              Encontre o cuidador ideal para quem você{' '}
-              <span className="hero-premium-title-accent">mais ama</span>
+              Encontre babás e diaristas de confiança para a sua{' '}
+              <span className="hero-premium-title-accent">casa</span>
             </h1>
 
             <p className="hero-premium-subtitle">
-              Conectamos famílias a cuidadores verificados e avaliados com carinho e segurança.
+              Conectamos famílias a profissionais verificadas e avaliadas com carinho e segurança.
             </p>
 
             <ul className="hero-premium-benefits" aria-label="Benefícios da plataforma">

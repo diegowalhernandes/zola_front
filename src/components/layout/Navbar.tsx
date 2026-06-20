@@ -132,7 +132,7 @@ export function Navbar() {
             <div className="container-page space-y-1">
               <div className="trust-banner mb-3 border-white/10 bg-white/10 text-white dark:text-brand-100">
                 <FiShield className="mt-0.5 shrink-0 text-brand-300" />
-                <span>Plataforma segura para encontrar cuidadores verificados.</span>
+                <span>Plataforma segura para encontrar babás e diaristas verificadas.</span>
               </div>
 
               {links.map((link) => (

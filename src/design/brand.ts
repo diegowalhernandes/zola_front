@@ -10,7 +10,7 @@ export const BRAND = {
 
   description:
 
-    'Babás, diaristas e cuidadoras verificadas para oferecer mais tranquilidade ao seu dia.',
+    'Babás e diaristas verificadas para oferecer mais tranquilidade ao seu dia.',
 
   /**
 
