@@ -103,12 +103,15 @@ export default function ProfessionalProfile() {
           <div className="section-card">
             <h2 className="section-card-title">Agenda e disponibilidade</h2>
             <p className="section-card-subtitle">
-              Escolha um dia e horário livre para solicitar o atendimento.
+              {professional.professionalType === 'diarista'
+                ? 'Escolha um dia e turno livre para solicitar a limpeza.'
+                : 'Escolha um dia e horário livre para solicitar o atendimento.'}
             </p>
             <div className="mt-5">
               <AvailabilityCalendar
                 professionalId={Number(professional.id)}
                 professionalName={professional.name}
+                professionalType={professional.professionalType}
               />
             </div>
           </div>

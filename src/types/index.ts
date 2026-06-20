@@ -102,6 +102,7 @@ export interface BatchCheckout {
 export interface BookingPaymentState {
   professionalId: number;
   professionalName: string;
+  professionalType?: ProfessionalType;
   slots: SlotSelection[];
   notes?: string;
 }

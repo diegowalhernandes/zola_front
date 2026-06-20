@@ -9,10 +9,16 @@ import {
 import { DayAvailability } from '../../types';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
+import {
+  ProfessionalType,
+  formatSlotLabel,
+  isDiaristaType,
+} from '../../constants/professionalSpecs';
 
 type Props = {
   professionalId: number;
   professionalName: string;
+  professionalType?: ProfessionalType;
 };
 
 function toIsoDate(date: Date) {
@@ -27,7 +33,15 @@ function formatDisplayDate(iso: string) {
   });
 }
 
-export function AvailabilityCalendar({ professionalId, professionalName }: Props) {
+function formatSlotSummary(date: string, slot: string, professionalType?: ProfessionalType) {
+  const label = formatSlotLabel(slot, professionalType);
+  if (isDiaristaType(professionalType)) {
+    return `${formatDisplayDate(date)} · ${label}`;
+  }
+  return `${formatDisplayDate(date)} às ${label}`;
+}
+
+export function AvailabilityCalendar({ professionalId, professionalName, professionalType }: Props) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
@@ -36,6 +50,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState('');
+  const isDiarista = isDiaristaType(professionalType);
 
   const range = useMemo(() => {
     const from = new Date();
@@ -72,9 +87,19 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
       const next = new Set(current);
       if (next.has(key)) {
         next.delete(key);
-      } else {
-        next.add(key);
+        return next;
       }
+
+      if (isDiarista) {
+        for (const existingKey of next) {
+          const { appointment_date } = parseSlotKey(existingKey);
+          if (appointment_date === date) {
+            next.delete(existingKey);
+          }
+        }
+      }
+
+      next.add(key);
       return next;
     });
   }
@@ -89,7 +114,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
 
   function handleContinue() {
     if (selectedSlots.size === 0) {
-      return toast('Selecione ao menos um horário.');
+      return toast(isDiarista ? 'Selecione ao menos um turno.' : 'Selecione ao menos um horário.');
     }
 
     if (!isAuthenticated || user?.role !== 'client') {
@@ -101,6 +126,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
       state: {
         professionalId,
         professionalName,
+        professionalType,
         slots,
         notes: notes.trim() || undefined,
       },
@@ -114,15 +140,20 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
   if (days.length === 0) {
     return (
       <p className="rounded-2xl bg-amber-50 p-4 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-100">
-        Este profissional ainda não configurou horários na agenda. Entre em contato para combinar.
+        Este profissional ainda não configurou {isDiarista ? 'turnos' : 'horários'} na agenda. Entre em contato para combinar.
       </p>
     );
   }
 
+  const slotNoun = isDiarista ? 'turno' : 'horário';
+  const slotNounPlural = isDiarista ? 'turnos' : 'horários';
+
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted">
-        Selecione horários em quantos dias quiser. Você pode trocar de dia sem perder os horários já escolhidos.
+        {isDiarista
+          ? 'Selecione um turno por dia (manhã, tarde ou dia inteiro). Você pode reservar vários dias.'
+          : 'Selecione horários em quantos dias quiser. Você pode trocar de dia sem perder os horários já escolhidos.'}
       </p>
 
       <div>
@@ -151,7 +182,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
         <div>
           <h3 className="flex items-center gap-2 text-lg font-bold">
             <FiClock className="text-brand-600" />
-            Horários em {formatDisplayDate(selectedDate)}
+            {isDiarista ? 'Turnos' : 'Horários'} em {formatDisplayDate(selectedDate)}
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {slotsForSelectedDay.map((slot) => {
@@ -164,7 +195,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
                   onClick={() => toggleSlot(selectedDate, slot)}
                   className={active ? 'slot-btn slot-btn-selected' : 'slot-btn slot-btn-available'}
                 >
-                  {slot}
+                  {formatSlotLabel(slot, professionalType)}
                 </button>
               );
             })}
@@ -175,7 +206,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
       {selectedSlots.size > 0 && (
         <div className="rounded-2xl border border-brand-200/80 bg-brand-50/50 p-4 dark:border-brand-800 dark:bg-brand-900/20 sm:p-5">
           <h4 className="text-sm font-bold text-brand-800 dark:text-brand-100">
-            Horários selecionados ({selectedSlots.size})
+            {slotNounPlural.charAt(0).toUpperCase() + slotNounPlural.slice(1)} selecionados ({selectedSlots.size})
           </h4>
           <ul className="mt-3 space-y-2">
             {Array.from(selectedSlots).map((key) => {
@@ -185,14 +216,12 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
                   key={key}
                   className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2 text-sm dark:bg-brand-950/40"
                 >
-                  <span>
-                    {formatDisplayDate(appointment_date)} às {time_slot}
-                  </span>
+                  <span>{formatSlotSummary(appointment_date, time_slot, professionalType)}</span>
                   <button
                     type="button"
                     onClick={() => removeSlot(key)}
                     className="text-muted hover:text-red-600"
-                    aria-label="Remover horário"
+                    aria-label={`Remover ${slotNoun}`}
                   >
                     <FiX />
                   </button>
@@ -209,7 +238,7 @@ export function AvailabilityCalendar({ professionalId, professionalName }: Props
           />
 
           <button type="button" className="btn-primary mt-3 w-full" onClick={handleContinue}>
-            Continuar para pagamento ({selectedSlots.size} horário{selectedSlots.size > 1 ? 's' : ''})
+            Continuar para pagamento ({selectedSlots.size} {selectedSlots.size > 1 ? slotNounPlural : slotNoun})
           </button>
         </div>
       )}

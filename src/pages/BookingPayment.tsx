@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { parseApiError } from '../services/api';
 import { BookingPaymentState, DepositPreview, PaymentMode } from '../types';
+import { formatSlotLabel, isDiaristaType } from '../constants/professionalSpecs';
 
 function formatDisplayDate(iso: string) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString('pt-BR', {
@@ -32,6 +33,9 @@ export default function BookingPayment() {
   const [submitting, setSubmitting] = useState(false);
 
   const slotCount = state?.slots.length ?? 0;
+  const isDiarista = isDiaristaType(state?.professionalType);
+  const slotLabel = isDiarista ? 'turno' : 'horário';
+  const slotLabelPlural = isDiarista ? 'turnos' : 'horários';
 
   const amountDue = useMemo(() => {
     if (!preview) return 0;
@@ -98,14 +102,18 @@ export default function BookingPayment() {
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_380px] lg:gap-8">
         <div className="section-card">
-          <h2 className="section-card-title">Horários reservados</h2>
-          <p className="section-card-subtitle">{slotCount} horário{slotCount > 1 ? 's' : ''} selecionado{slotCount > 1 ? 's' : ''}</p>
+          <h2 className="section-card-title">{isDiarista ? 'Turnos reservados' : 'Horários reservados'}</h2>
+          <p className="section-card-subtitle">
+            {slotCount} {slotCount > 1 ? slotLabelPlural : slotLabel} selecionado{slotCount > 1 ? 's' : ''}
+          </p>
 
           <div className="mt-4 space-y-2">
             {state.slots.map((slot) => (
               <div key={`${slot.appointment_date}-${slot.time_slot}`} className="list-row">
                 <strong className="text-sm sm:text-base">{formatDisplayDate(slot.appointment_date)}</strong>
-                <p className="text-sm text-muted">às {slot.time_slot}</p>
+                <p className="text-sm text-muted">
+                  {isDiarista ? formatSlotLabel(slot.time_slot, 'diarista') : `às ${formatSlotLabel(slot.time_slot)}`}
+                </p>
               </div>
             ))}
           </div>

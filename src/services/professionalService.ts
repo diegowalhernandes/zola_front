@@ -1,6 +1,6 @@
 ﻿import { api } from "./api";
 import { JobSpecs, Professional, WeeklyAvailability } from "../types";
-import { DEFAULT_WEEKLY_AVAILABILITY } from "../constants/professionalSpecs";
+import { getDefaultWeeklyAvailability } from "../constants/professionalSpecs";
 import {
   formatCategoryName,
   formatDescription,
@@ -31,7 +31,7 @@ function mapBackendProfessional(raw: any): Professional {
     : [formatCategoryName(categoryRaw)];
 
   const todayKey = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
-  const weekly = availability ?? DEFAULT_WEEKLY_AVAILABILITY;
+  const weekly = availability ?? getDefaultWeeklyAvailability(raw.professional_type);
   const availableToday = (weekly[todayKey] ?? []).length > 0;
   const rawName = raw.user?.name ?? "profissional";
   const rawTitle = raw.title ?? rawName;

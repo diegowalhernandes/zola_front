@@ -7,8 +7,10 @@ import { getMyRequests } from "../services/requestService";
 import { AppointmentItem, Professional, ProfessionalType, WeeklyAvailability } from "../types";
 import { AvailabilityEditor } from "../components/availability/AvailabilityEditor";
 import {
-  DEFAULT_WEEKLY_AVAILABILITY,
+  formatSlotLabel,
+  getDefaultWeeklyAvailability,
   getSpecFields,
+  isDiaristaType,
   PROFESSIONAL_TYPE_LABELS,
   PROFESSIONAL_TYPES,
 } from "../constants/professionalSpecs";
@@ -33,7 +35,7 @@ export default function ProfessionalDashboard() {
   const [whatsapp, setWhatsapp] = useState("");
   const [professionalType, setProfessionalType] = useState<ProfessionalType>("diarista");
   const [jobSpecs, setJobSpecs] = useState<Record<string, unknown>>({});
-  const [availability, setAvailability] = useState<WeeklyAvailability>(DEFAULT_WEEKLY_AVAILABILITY);
+  const [availability, setAvailability] = useState<WeeklyAvailability>(getDefaultWeeklyAvailability('diarista'));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -50,7 +52,7 @@ export default function ProfessionalDashboard() {
         setPriceFrom(data.price?.toString() ?? "");
         setProfessionalType(data.professionalType ?? "diarista");
         setJobSpecs(data.jobSpecs ?? {});
-        setAvailability(data.availability ?? DEFAULT_WEEKLY_AVAILABILITY);
+        setAvailability(data.availability ?? getDefaultWeeklyAvailability(data.professionalType));
         setPhotoUrl(data.cover ?? "");
 
         const requestData = await getMyRequests();
@@ -166,10 +168,16 @@ export default function ProfessionalDashboard() {
           <div className="card p-6">
             <h2 className="text-xl font-bold">Agenda semanal</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Marque os horários em que você está disponível. Clientes verão isso no seu perfil.
+              {isDiaristaType(professionalType)
+                ? 'Marque os turnos em que você atende (manhã, tarde ou dia inteiro).'
+                : 'Marque os horários em que você está disponível. Clientes verão isso no seu perfil.'}
             </p>
             <div className="mt-4">
-              <AvailabilityEditor value={availability} onChange={setAvailability} />
+              <AvailabilityEditor
+                professionalType={professionalType}
+                value={availability}
+                onChange={setAvailability}
+              />
             </div>
           </div>
 
@@ -191,7 +199,9 @@ export default function ProfessionalDashboard() {
                     <div>
                       <strong>{item.client_name ?? `Cliente #${item.client_id}`}</strong>
                       <p className="text-sm text-slate-500">
-                        {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString("pt-BR")} às {item.time_slot}
+                        {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString("pt-BR")}
+                        {isDiaristaType(professionalType) ? ' · ' : ' às '}
+                        {formatSlotLabel(item.time_slot, professionalType)}
                       </p>
                       {item.notes && (
                         <p className="mt-2 text-sm text-muted">Obs.: {item.notes}</p>

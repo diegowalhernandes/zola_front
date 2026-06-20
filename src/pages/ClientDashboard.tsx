@@ -3,6 +3,7 @@ import { FiCalendar, FiClock, FiStar } from 'react-icons/fi';
 import { getMyAppointments } from '../services/appointmentService';
 import { getMyRequests } from '../services/requestService';
 import { AppointmentItem } from '../types';
+import { formatSlotLabel } from '../constants/professionalSpecs';
 
 type RequestItem = {
   id: number;
@@ -67,8 +68,11 @@ export default function ClientDashboard() {
                     {item.professional_name ?? `Profissional #${item.professional_id}`}
                   </strong>
                   <p className="text-sm text-muted">
-                    {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString('pt-BR')} às{' '}
-                    {item.time_slot} · {item.status}
+                    {new Date(`${item.appointment_date}T12:00:00`).toLocaleDateString('pt-BR')}
+                    {formatSlotLabel(item.time_slot).includes(':')
+                      ? ` às ${formatSlotLabel(item.time_slot)}`
+                      : ` · ${formatSlotLabel(item.time_slot)}`}{' '}
+                    · {item.status}
                     {item.deposit_paid ? ` · sinal ${item.deposit_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : ''}
                   </p>
                 </div>

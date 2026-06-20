@@ -19,6 +19,22 @@ export const WEEKDAYS = [
 
 export const TIME_SLOT_OPTIONS = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
 
+export const DIARISTA_TURN_OPTIONS = [
+  { value: 'manha', label: 'Manhã' },
+  { value: 'tarde', label: 'Tarde' },
+  { value: 'dia_inteiro', label: 'Dia inteiro' },
+] as const;
+
+export type DiaristaTurn = (typeof DIARISTA_TURN_OPTIONS)[number]['value'];
+
+export const DIARISTA_TURN_LABELS: Record<string, string> = {
+  manha: 'Manhã',
+  tarde: 'Tarde',
+  dia_inteiro: 'Dia inteiro',
+};
+
+export const TURN_ORDER: DiaristaTurn[] = ['manha', 'tarde', 'dia_inteiro'];
+
 export const DIARISTA_SPEC_FIELDS = [
   { key: 'tipo_limpeza', label: 'Tipo de limpeza', type: 'select', options: ['residencial', 'comercial', 'pós-obra'] },
   { key: 'frequencia', label: 'Frequência', type: 'select', options: ['avulsa', 'semanal', 'quinzenal', 'mensal'] },
@@ -97,7 +113,7 @@ function capitalizeLabel(text: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
-export const DEFAULT_WEEKLY_AVAILABILITY: Record<string, string[]> = {
+export const DEFAULT_BABA_WEEKLY_AVAILABILITY: Record<string, string[]> = {
   monday: ['08:00', '09:00', '14:00'],
   tuesday: ['08:00', '09:00', '14:00'],
   wednesday: ['08:00', '14:00'],
@@ -106,3 +122,39 @@ export const DEFAULT_WEEKLY_AVAILABILITY: Record<string, string[]> = {
   saturday: ['09:00', '10:00'],
   sunday: [],
 };
+
+export const DEFAULT_DIARISTA_WEEKLY_AVAILABILITY: Record<string, string[]> = {
+  monday: ['manha', 'tarde'],
+  tuesday: ['manha', 'tarde'],
+  wednesday: ['manha', 'tarde'],
+  thursday: ['manha', 'tarde'],
+  friday: ['manha', 'tarde'],
+  saturday: ['manha'],
+  sunday: [],
+};
+
+/** @deprecated Use getDefaultWeeklyAvailability(type) */
+export const DEFAULT_WEEKLY_AVAILABILITY = DEFAULT_BABA_WEEKLY_AVAILABILITY;
+
+export function getDefaultWeeklyAvailability(type: ProfessionalType | undefined) {
+  return type === 'diarista' ? DEFAULT_DIARISTA_WEEKLY_AVAILABILITY : DEFAULT_BABA_WEEKLY_AVAILABILITY;
+}
+
+export function isDiaristaType(type: ProfessionalType | undefined) {
+  return type === 'diarista';
+}
+
+export function formatSlotLabel(slot: string, type?: ProfessionalType) {
+  if (type === 'diarista' || slot in DIARISTA_TURN_LABELS) {
+    return DIARISTA_TURN_LABELS[slot] ?? slot;
+  }
+  return slot;
+}
+
+export function sortAvailabilitySlots(slots: string[], type?: ProfessionalType) {
+  if (isDiaristaType(type)) {
+    const order = Object.fromEntries(TURN_ORDER.map((turn, index) => [turn, index]));
+    return [...slots].sort((a, b) => (order[a] ?? 99) - (order[b] ?? 99));
+  }
+  return [...slots].sort();
+}
