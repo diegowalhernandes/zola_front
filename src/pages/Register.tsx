@@ -6,6 +6,8 @@ import {
   emptyProfessionalOnboarding,
   ProfessionalOnboardingFields,
 } from "../components/professionals/ProfessionalOnboardingFields";
+import { DocumentRegistrationFields } from "../components/auth/DocumentRegistrationFields";
+import { DocumentType, normalizeDocumentNumber, validateDocument } from "../utils/documentValidation";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -15,6 +17,8 @@ export default function Register() {
     role: "client" as "client" | "professional",
   });
   const [professionalData, setProfessionalData] = useState(emptyProfessionalOnboarding());
+  const [documentType, setDocumentType] = useState<DocumentType>("cpf");
+  const [documentNumber, setDocumentNumber] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -32,11 +36,18 @@ export default function Register() {
       }
     }
 
+    const documentError = validateDocument(documentType, documentNumber);
+    if (documentError) {
+      return setErrorMessage(documentError);
+    }
+
     try {
       setLoading(true);
 
       const data = await registerUser({
         ...form,
+        document_type: documentType,
+        document_number: normalizeDocumentNumber(documentType, documentNumber),
         ...(form.role === "professional"
           ? {
               professional_type: professionalData.professional_type,
@@ -109,6 +120,20 @@ export default function Register() {
             setErrorMessage("");
           }}
           required
+        />
+
+        <DocumentRegistrationFields
+          documentType={documentType}
+          documentNumber={documentNumber}
+          onDocumentTypeChange={(value) => {
+            setDocumentType(value);
+            setDocumentNumber("");
+            setErrorMessage("");
+          }}
+          onDocumentNumberChange={(value) => {
+            setDocumentNumber(value);
+            setErrorMessage("");
+          }}
         />
 
         <select

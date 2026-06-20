@@ -11,12 +11,16 @@ import {
   emptyProfessionalOnboarding,
   ProfessionalOnboardingFields,
 } from '../components/professionals/ProfessionalOnboardingFields';
+import { DocumentRegistrationFields } from '../components/auth/DocumentRegistrationFields';
+import { DocumentType, normalizeDocumentNumber, validateDocument } from '../utils/documentValidation';
 
 export default function Auth() {
   const [role, setRole] = useState<UserRole>('client');
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [professionalData, setProfessionalData] = useState(emptyProfessionalOnboarding());
+  const [documentType, setDocumentType] = useState<DocumentType>('cpf');
+  const [documentNumber, setDocumentNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
@@ -43,6 +47,14 @@ export default function Auth() {
       return setErrorMessage('Informe seu nome completo para cadastro.');
     }
 
+    if (isRegister) {
+      const documentError = validateDocument(documentType, documentNumber);
+      if (documentError) {
+        setLoading(false);
+        return setErrorMessage(documentError);
+      }
+    }
+
     if (isRegister && role === 'professional') {
       if (!professionalData.city || !professionalData.state || !professionalData.title || !professionalData.description) {
         setLoading(false);
@@ -51,8 +63,10 @@ export default function Auth() {
     }
 
     try {
-      const extra =
-        isRegister && role === 'professional'
+      await login(email, password, role, isRegister, fullName, {
+        document_type: documentType,
+        document_number: normalizeDocumentNumber(documentType, documentNumber),
+        ...(isRegister && role === 'professional'
           ? {
               professional_type: professionalData.professional_type,
               city: professionalData.city,
@@ -62,9 +76,8 @@ export default function Auth() {
               price_from: professionalData.price_from ? Number(professionalData.price_from) : undefined,
               job_specs: professionalData.job_specs,
             }
-          : undefined;
-
-      await login(email, password, role, isRegister, fullName, extra);
+          : {}),
+      });
       toast(isRegister ? 'Cadastro realizado!' : 'Login realizado!');
       navigate(role === 'professional' ? '/dashboard/profissional' : '/dashboard/cliente');
     } catch (error) {
@@ -144,21 +157,37 @@ export default function Auth() {
         </div>
 
         {isRegister && (
-          <div className="mt-4">
-            <label className="form-label" htmlFor="auth-name">
-              Nome completo
-            </label>
-            <input
-              id="auth-name"
-              name="name"
-              className="input"
-              placeholder="Seu nome"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="form-label" htmlFor="auth-name">
+                Nome completo
+              </label>
+              <input
+                id="auth-name"
+                name="name"
+                className="input"
+                placeholder="Seu nome"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setErrorMessage('');
+                }}
+                required
+              />
+            </div>
+
+            <DocumentRegistrationFields
+              documentType={documentType}
+              documentNumber={documentNumber}
+              onDocumentTypeChange={(value) => {
+                setDocumentType(value);
+                setDocumentNumber('');
                 setErrorMessage('');
               }}
-              required
+              onDocumentNumberChange={(value) => {
+                setDocumentNumber(value);
+                setErrorMessage('');
+              }}
             />
           </div>
         )}
